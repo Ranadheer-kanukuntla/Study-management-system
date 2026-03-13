@@ -1,0 +1,7 @@
+nav.bg-white.border-b.fixed.w-full.z-30.top-0
+  .max-w-7xl.mx-auto.px-4.h-16.flex.justify-between.items-center
+    span.text-2xl.font-bold.text-blue-600 StudyLink 
+    .flex.items-center.space-x-4
+      //- Safe check: If user exists, show name; otherwise show Guest
+      span.text-sm.text-gray-600= (user ? user.name : "Guest")
+      button#logoutBtn.text-xs.text-red-600.bg-red-50.px-3.py-1.rounded Logout

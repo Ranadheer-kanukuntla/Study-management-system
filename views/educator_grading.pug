@@ -1,0 +1,60 @@
+doctype html
+html(lang="en")
+  head
+    title Grading | StudyLink
+    link(rel="stylesheet", href="/css/style.css")
+  body.bg-gray-50
+    include navbar
+    main.container.mx-auto.pt-24.px-6
+      .max-w-5xl.mx-auto
+        a.text-blue-600.text-sm(href="/educator/dashboard") ← Back to Dashboard
+        
+        .bg-white.p-8.rounded-2xl.shadow-sm.border.mt-6.mb-8
+          h1.text-3xl.font-bold= assignment.title
+          p.text-gray-500 Grading Portal for #{assignment.course}
+
+        .bg-white.rounded-xl.shadow-md.overflow-hidden
+          table.w-full.text-left
+            thead.bg-gray-50.text-xs.uppercase.text-gray-400
+              tr
+                th.p-4 Student ID
+                th.p-4 Status
+                th.p-4 Grade
+                th.p-4 Feedback
+                th.p-4 Action
+            tbody
+              each sub in studentSubmissions
+                tr.border-t
+                  td.p-4
+                    p.font-bold= sub.studentID
+                    p.text-xs.text-gray-400= sub.submissionDate
+                  td.p-4
+                    span.text-xs.font-bold.text-green-600= sub.status
+                  td.p-4
+                    input.grade-input.w-16.border.rounded.px-2.py-1(type="text" value=sub.grade || "" placeholder="A, B+")
+                  td.p-4
+                    input.feedback-input.w-full.border.rounded.px-2.py-1(type="text" value=sub.feedback || "" placeholder="Comments...")
+                  td.p-4
+                    button.save-grade-btn.bg-blue-600.text-white.px-4.py-1.rounded.text-sm(data-id=sub.submissionID) Save
+
+    script.
+      document.querySelectorAll('.save-grade-btn').forEach(btn => {
+        btn.onclick = async (e) => {
+          const row = e.target.closest('tr');
+          const submissionID = e.target.dataset.id;
+          const grade = row.querySelector('.grade-input').value;
+          const feedback = row.querySelector('.feedback-input').value;
+
+          const res = await fetch('/api/grade', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ submissionID, grade, feedback })
+          });
+
+          if(res.ok) {
+            alert("Grade saved for " + submissionID);
+            e.target.innerText = "Updated";
+            e.target.classList.replace('bg-blue-600', 'bg-green-600');
+          }
+        };
+      });

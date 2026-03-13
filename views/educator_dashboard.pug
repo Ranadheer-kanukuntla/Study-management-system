@@ -1,0 +1,148 @@
+doctype html
+html(lang="en")
+  head
+    title Educator Dashboard | StudyLink
+    link(rel="stylesheet", href="/css/style.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+  body.bg-gray-50.flex
+    //- Sidebar Navigation 
+    nav.w-64.bg-white.h-screen.border-r.p-6.fixed
+      .text-blue-600.font-bold.text-xl.mb-10 StudyLink SMS
+      ul.space-y-6.text-gray-500.font-medium
+        li
+          a.flex.items-center.space-x-2(href="/educator/dashboard" class="text-blue-600")
+            span Dashboard
+        li
+          a.flex.items-center.space-x-2.hover_text-blue-600(href="#assignmentTable")
+            span Assignments
+        li
+          a.flex.items-center.space-x-2.hover_text-blue-600(href="#recentSubmissions")
+            span Submissions
+        li
+          a.flex.items-center.space-x-2.hover_text-blue-600(href="#performanceChart")
+            span Analytics
+        li
+          button#announcementBtn.flex.items-center.space-x-2.hover_text-blue-600(type="button")
+            span Announcements
+        li#logoutBtn.text-red-500.pt-10.cursor-pointer Logout
+
+    //- Main Content
+    main.ml-64.p-10.w-full
+      header.flex.justify-between.items-center.mb-10
+        div
+          h1.text-2xl.font-bold Educator Dashboard
+          p.text-gray-500 Welcome, #{user.name} - #{user.department}
+        button#openModalBtn.bg-blue-600.text-white.px-6.py-2.rounded-lg.font-bold.shadow-md + Create Assignment
+
+      //- Analytics Section
+      .grid.grid-cols-3.gap-8
+        .col-span-2.bg-white.p-6.rounded-xl.shadow-sm.border#performanceChart
+          h2.font-bold.mb-6 Student Performance Trends
+          .h-64
+            canvas#performanceChartCanvas
+
+        .bg-white.p-6.rounded-xl.shadow-sm.border#recentSubmissions
+          h2.font-bold.mb-4 Recent Submissions
+          ul.space-y-4
+            li.text-sm.flex.justify-between
+              span Ananya Sharma
+              span.text-blue-600.font-bold ASG001
+
+      //- Assignment Tracker
+      .mt-10.bg-white.p-6.rounded-xl.shadow-sm.border#assignmentTable
+        h2.font-bold.mb-4 My Assignment Tracker
+        table.w-full.text-left
+          thead.text-xs.text-gray-400.uppercase
+            tr
+              th.pb-4 Title
+              th.pb-4 Due Date
+              th.pb-4 Status
+          tbody
+            each task in tasks
+              tr.border-t
+                td.py-4
+                   a.text-blue-600.font-medium.hover_underline(href=`/educator/assignment/${task.assignmentID}`)= task.title
+                td.py-4.text-sm.text-gray-500= task.dueDate
+                td.py-4
+                   span.text-xs.bg-green-100.text-green-700.px-2.py-1.rounded Active
+
+    //- --- MODALS ---
+
+    //- 1. Create Assignment Modal
+    #createModal.fixed.inset-0.bg-black.bg-opacity-50.hidden.z-50.flex.items-center.justify-center
+      .bg-white.rounded-2xl.p-8.w-full.max-w-md
+        h2.text-xl.font-bold.mb-4 New Assignment
+        form#createAssignmentForm
+          input#asgTitle.w-full.border.p-3.rounded-lg.mb-4(placeholder="Title" required)
+          input#asgDate.w-full.border.p-3.rounded-lg.mb-4(type="date" required)
+          textarea#asgDesc.w-full.border.p-3.rounded-lg.mb-4(placeholder="Description")
+          .flex.space-x-4
+            button#closeModalBtn.flex-1.bg-gray-100.py-2.rounded Cancel
+            button.flex-1.bg-blue-600.text-white.py-2.rounded Create
+
+    //- 2. Announcement Modal (New System)
+    #announcementModal.fixed.inset-0.bg-black.bg-opacity-50.hidden.z-50.flex.items-center.justify-center
+      .bg-white.rounded-2xl.p-8.w-full.max-w-md
+        h2.text-xl.font-bold.mb-4 Broadcast Announcement
+        p.text-xs.text-gray-500.mb-4 This will notify all students in #{user.department}.
+        form#announcementForm
+          textarea#announcementText.w-full.border.p-3.rounded-lg.mb-4(placeholder="Write your message here..." rows="4" required)
+          .flex.space-x-4
+            button#closeAnnBtn.flex-1.bg-gray-100.py-2.rounded Cancel
+            button.flex-1.bg-blue-600.text-white.py-2.rounded Send Alert
+
+    script.
+      // Modals
+      const asgModal = document.getElementById('createModal');
+      const annModal = document.getElementById('announcementModal');
+
+      document.getElementById('openModalBtn').onclick = () => asgModal.classList.remove('hidden');
+      document.getElementById('closeModalBtn').onclick = () => asgModal.classList.add('hidden');
+      
+      document.getElementById('announcementBtn').onclick = () => annModal.classList.remove('hidden');
+      document.getElementById('closeAnnBtn').onclick = () => annModal.classList.add('hidden');
+
+      // Announcement Sequence: Educator -> Notify All Students
+      document.getElementById('announcementForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const message = document.getElementById('announcementText').value;
+        const res = await fetch('/api/announce', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ message })
+        });
+        if(res.ok) {
+          alert("Announcement sent to all students!");
+          annModal.classList.add('hidden');
+        }
+      };
+
+      // Create Assignment logic
+      document.getElementById('createAssignmentForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const res = await fetch('/api/create-assignment', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            title: asgTitle.value,
+            dueDate: asgDate.value,
+            description: asgDesc.value,
+            course: "#{user.department}"
+          })
+        });
+        if (res.ok) location.reload();
+      };
+
+      // Chart
+      const ctx = document.getElementById('performanceChartCanvas').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+          datasets: [{ label: 'Avg %', data: [75, 78, 72, 85, 80, 82], borderColor: '#2563eb', tension: 0.4 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      // Logout
+      document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); window.location.href = '/login'; };

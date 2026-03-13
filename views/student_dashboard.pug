@@ -1,0 +1,108 @@
+doctype html
+html(lang="en")
+  head
+    title Student Dashboard | StudyLink
+    link(rel="stylesheet", href="/css/style.css")
+  body.bg-gray-50
+    include navbar
+
+    main.container.mx-auto.pt-24.px-4
+      .grid.grid-cols-1(class="md:grid-cols-3 gap-8")
+        
+        //- Profile Card
+        .bg-white.p-6.rounded-xl.shadow-md.border-t-4.border-blue-500
+          h2.text-xs.font-bold.text-gray-400.uppercase Student Profile
+          p.text-2xl.font-bold.mt-2 #{user.name}
+          p.text-sm.text-gray-600 #{user.major}
+          .mt-6.grid.grid-cols-2.gap-4
+             .p-3.bg-blue-50.rounded-lg
+                p.text-xs.text-blue-600.font-medium Roll No
+                p.text-sm.font-bold= user.studentID
+             .p-3.bg-green-50.rounded-lg
+                p.text-xs.text-green-600.font-medium GPA
+                p.text-sm.font-bold= user.gpa
+
+        //- Assignment Management Section
+        .col-span-2.bg-white.p-6.rounded-xl.shadow-md
+          .mb-6
+            h3.text-lg.font-bold.mb-4 Upcoming Assignments
+            
+            .grid.grid-cols-3.gap-4
+              select#deptFilter.border.rounded-lg.px-3.py-2.text-sm
+                option(value="") All Departments
+                option(value="Computer Science") Computer Science
+                option(value="Pure Mathematics") Pure Mathematics
+                option(value="Philosophy") Philosophy
+              
+              input#titleFilter.border.rounded-lg.px-3.py-2.text-sm(type="text" placeholder="Search by Title...")
+              
+              input#codeFilter.border.rounded-lg.px-3.py-2.text-sm(type="text" placeholder="By Code (e.g. ASG001)")
+
+          #assignmentList.space-y-2
+            each task in tasks
+              .assignment-item.flex.items-center.justify-between.p-4.border-b.last_border-0(
+                data-dept=task.course 
+                data-title=task.title.toLowerCase() 
+                data-code=task.assignmentID.toLowerCase()
+              )
+                div
+                  a.text-blue-600.font-bold.hover_underline(href=`/assignment/${task.assignmentID}`)= task.title
+                  p.text-xs.text-gray-500= task.course
+                  p.text-xs.text-gray-400 ID: #{task.assignmentID}
+                
+                .flex.items-center.space-x-4
+                  span.text-sm.text-gray-400= task.dueDate
+                  
+                  if task.status === 'Completed'
+                    span.text-xs.font-bold.text-green-600.flex.items-center
+                      | ✔ Completed
+                  else
+                    button.mark-complete-btn.text-xs.bg-blue-50.text-blue-600.px-3.py-1.rounded-md.border.border-blue-200.hover_bg-blue-600.hover_text-white.transition(
+                      data-id=task.assignmentID
+                    ) Mark Complete
+
+    script.
+      const deptFilter = document.getElementById('deptFilter');
+      const titleFilter = document.getElementById('titleFilter');
+      const codeFilter = document.getElementById('codeFilter');
+      const items = document.querySelectorAll('.assignment-item');
+
+      function filterAssignments() {
+        const deptVal = deptFilter.value;
+        const titleVal = titleFilter.value.toLowerCase();
+        const codeVal = codeFilter.value.toLowerCase();
+
+        items.forEach(item => {
+          const itemDept = item.getAttribute('data-dept');
+          const itemTitle = item.getAttribute('data-title');
+          const itemCode = item.getAttribute('data-code');
+
+          const matchesDept = deptVal === "" || itemDept === deptVal;
+          const matchesTitle = itemTitle.includes(titleVal);
+          const matchesCode = itemCode.includes(codeVal);
+
+          item.style.display = (matchesDept && matchesTitle && matchesCode) ? 'flex' : 'none';
+        });
+      }
+
+      deptFilter.addEventListener('change', filterAssignments);
+      titleFilter.addEventListener('input', filterAssignments);
+      codeFilter.addEventListener('input', filterAssignments);
+
+      document.querySelectorAll('.mark-complete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const assignmentID = e.target.getAttribute('data-id');
+          const response = await fetch('/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assignmentID })
+          });
+          if (response.ok) { location.reload(); }
+        });
+      });
+
+      if (!localStorage.getItem('sms_token')) { window.location.href = '/login'; }
+      document.getElementById('logoutBtn').onclick = () => { 
+        localStorage.clear(); 
+        window.location.href = '/login'; 
+      };

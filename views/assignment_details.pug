@@ -1,0 +1,36 @@
+doctype html
+html(lang="en")
+  head
+    link(rel="stylesheet", href="/css/style.css")
+  body.bg-gray-50
+    include navbar
+    main.container.mx-auto.pt-24.px-6
+      .max-w-4xl.mx-auto
+        a.text-blue-600.text-sm(href="/student/dashboard") ← Back to Dashboard
+        .bg-white.p-8.rounded-2xl.shadow-sm.border.mt-6
+          .flex.justify-between
+            h1.text-3xl.font-bold= assignment.title
+            span.px-3.py-1.rounded-full.text-xs.font-bold(class=submission.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')= submission.status
+          p.text-gray-600.mt-6= assignment.description
+        .mt-8
+          if submission.status === 'Completed'
+            .grid.grid-cols-1(class="md:grid-cols-2 gap-6")
+              .bg-green-50.p-6.rounded-xl.border.border-green-200.text-center
+                h3.font-bold.text-green-900 Submitted 
+                p.text-xs Date: #{submission.submissionDate}
+              if submission.grade
+                .bg-white.p-6.rounded-xl.border.shadow-md
+                  h3.font-bold Feedback 
+                  span.text-2xl.font-bold.text-blue-600= submission.grade
+                  p.text-sm.mt-2.italic= submission.feedback
+          else
+            #submissionArea.bg-blue-50.p-10.rounded-xl.border-2.border-dashed.text-center
+              h3.font-bold.text-blue-900 Upload Submission 
+              button#submitBtn.mt-4.bg-blue-600.text-white.px-8.py-2.rounded-lg(data-id=assignment.assignmentID) Submit Now
+    script.
+      const btn = document.getElementById('submitBtn');
+      if(btn) btn.onclick = async () => {
+          await fetch('/api/submit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ assignmentID: btn.dataset.id }) });
+          location.reload();
+      };
+      document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); window.location.href = '/login'; };

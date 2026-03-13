@@ -1,0 +1,28 @@
+{
+  "name": "sms",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:css": "npx @tailwindcss/cli -i ./src/input.css -o ./public/css/style.css --watch",
+    "dev:node": "nodemon app.js",
+    "dev": "npm run dev:css & npm run dev:node"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.19.1",
+    "pug": "^3.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.1",
+    "nodemon": "^3.1.14",
+    "tailwindcss": "^4.2.1"
+  }
+}

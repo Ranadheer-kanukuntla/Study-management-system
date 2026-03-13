@@ -1,0 +1,67 @@
+doctype html
+html(lang="en")
+  head
+    title StudyLink | Modern Study Management System
+    link(rel="stylesheet", href="/css/style.css")
+  body.bg-gray-50.font-sans.text-gray-800
+    
+    //- Top Navigation Bar
+    nav.bg-white.shadow-sm.fixed.w-full.z-50.top-0
+      .max-w-7xl.mx-auto.px-6
+        .flex.justify-between.h-20.items-center
+          .flex.items-center
+            span.text-3xl.font-extrabold.text-blue-600 StudyLink
+          div.flex.items-center.space-x-6
+            a.text-sm.font-medium.text-gray-600.hover_text-blue-600.transition(href="#features") Features
+            a.text-sm.font-medium.text-gray-600.hover_text-blue-600.transition(href="#roles") Who Uses It?
+            a.bg-blue-600.text-white.px-6.py-2.rounded-lg.font-bold.shadow-md.hover_bg-blue-700.transition(href="/login") Portal Login
+
+    //- Hero Section
+    header.pt-32.pb-16.bg-white
+      .max-w-7xl.mx-auto.px-6.flex.flex-col(class="md:flex-row items-center")
+        .md_w-1-2.pr-10.mb-10(class="md:mb-0")
+          h1.text-4xl.font-extrabold.tracking-tight.text-gray-900.leading-tight.mb-6(class="md:text-5xl")
+            | Empowering Education with 
+            span.text-blue-600 Smart Management
+          p.text-lg.text-gray-500.mb-8.leading-relaxed
+            | StudyLink bridges the gap between students and educators. Track assignments, monitor performance analytics, and manage coursework seamlessly in one unified platform.
+          .flex.space-x-4
+            a.bg-blue-600.text-white.px-8.py-4.rounded-xl.font-bold.text-lg.shadow-lg.hover_bg-blue-700.transition.flex.items-center(href="/login") 
+              | Access Portal
+              svg.w-5.h-5.ml-2(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3")
+        
+        .md_w-1-2
+          img.rounded-2xl.shadow-2xl.border.border-gray-100(src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", alt="Students collaborating on a laptop")
+
+    //- Features Section
+    section#features.py-20.bg-gray-50
+      .max-w-7xl.mx-auto.px-6
+        .text-center.mb-16
+          h2.text-3xl.font-bold.text-gray-900 Why Choose StudyLink?
+          p.text-gray-500.mt-4 Designed specifically for modern academic workflows.
+        
+        .grid.grid-cols-1.gap-8(class="md:grid-cols-3")
+          .bg-white.p-8.rounded-2xl.shadow-sm.border.border-gray-100.hover_shadow-md.transition
+            .w-14.h-14.bg-blue-100.text-blue-600.rounded-xl.flex.items-center.justify-center.mb-6.text-2xl 📚
+            h3.text-xl.font-bold.mb-3 Intuitive Dashboards
+            p.text-gray-500.leading-relaxed Personalized views for students to prioritize deadlines and educators to monitor submissions efficiently.
+          
+          .bg-white.p-8.rounded-2xl.shadow-sm.border.border-gray-100.hover_shadow-md.transition
+            .w-14.h-14.bg-green-100.text-green-600.rounded-xl.flex.items-center.justify-center.mb-6.text-2xl 📈
+            h3.text-xl.font-bold.mb-3 Real-Time Analytics
+            p.text-gray-500.leading-relaxed Automated grading workflows and visual performance trend charts to keep the entire classroom on track.
+          
+          .bg-white.p-8.rounded-2xl.shadow-sm.border.border-gray-100.hover_shadow-md.transition
+            .w-14.h-14.bg-purple-100.text-purple-600.rounded-xl.flex.items-center.justify-center.mb-6.text-2xl 🔔
+            h3.text-xl.font-bold.mb-3 Instant Communication
+            p.text-gray-500.leading-relaxed Broadcast class-wide announcements and provide direct, actionable feedback on specific assignments.
+
+    //- Footer
+    footer.bg-gray-900.text-white.py-12
+      .max-w-7xl.mx-auto.px-6.flex.flex-col(class="md:flex-row justify-between items-center")
+        div.mb-4(class="md:mb-0")
+          span.text-2xl.font-extrabold.text-white StudyLink
+          p.text-gray-400.text-sm.mt-2 Academic System 
+        div.text-gray-400.text-sm
+          | © 2026 StudyLink SMS. All rights reserved.

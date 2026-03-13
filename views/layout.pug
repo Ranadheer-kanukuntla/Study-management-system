@@ -1,0 +1,19 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title StudyLink SMS
+    link(rel="stylesheet", href="/css/style.css")
+  body.bg-slate-50.font-sans
+    nav.bg-white.border-b.border-gray-200.fixed.w-full.z-30.top-0
+      .px-6.py-3.flex.justify-between.items-center
+        .flex.items-center
+          span.text-2xl.font-extrabold.text-blue-600 StudyLink
+        .flex.items-center.space-x-4
+          span.text-sm.font-medium.text-gray-600= studentName
+          .w-8.h-8.bg-blue-100.rounded-full.flex.items-center.justify-center
+            span.text-xs.font-bold.text-blue-600 #{studentName.charAt(0)}
+    
+    .pt-16
+      block content
