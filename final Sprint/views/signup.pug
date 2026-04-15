@@ -1,0 +1,149 @@
+doctype html
+html(lang="en")
+  head
+    title Sign Up | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body.min-h-screen.bg-gray-50.flex.items-center.justify-center.px-4.py-8
+    .w-full.max-w-md
+      .text-center.mb-8
+        .w-12.h-12.bg-blue-600.rounded-2xl.flex.items-center.justify-center.text-white.font-bold.text-lg.mx-auto.mb-4 SL
+        h1.text-2xl.font-bold.text-gray-900 Create your account
+        p.text-sm.text-gray-500.mt-1 Free for students and educators
+      .bg-white.rounded-2xl.shadow-sm.border.border-gray-200.p-6(class="sm:p-8")
+        #errorMsg.hidden.text-sm.text-red-600.bg-red-50.border.border-red-200.rounded-xl.p-3.mb-5
+        .flex.p-1.bg-gray-100.rounded-xl.mb-5
+          button#btnStudent.role-btn.flex-1.py-2.bg-white.text-blue-600.rounded-lg.shadow-sm.text-sm.font-semibold(type="button") Student
+          button#btnEducator.role-btn.flex-1.py-2.text-gray-400.rounded-lg.text-sm.font-semibold(type="button") Educator
+        form#signupForm
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1(for="fullName") Full name
+            input#fullName.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="text" placeholder="Ananya Sharma" required)
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1(for="userEmail") Email address
+            input#userEmail.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="email" placeholder="you@university.com" required)
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1(for="userPassword") Password
+            input#userPassword.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="password" placeholder="At least 6 characters" required)
+
+          //- Student fields
+          #studentFields.mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1(for="majorSelect") Major
+            select#majorSelect.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none.bg-white(class="focus:ring-2 focus:ring-blue-500")
+              option(value="Undeclared") Undeclared
+              option(value="Computer Science") Computer Science
+              option(value="Information Technology") Information Technology
+              option(value="Data Science") Data Science
+              option(value="Electrical Engineering") Electrical Engineering
+              option(value="Mechanical Engineering") Mechanical Engineering
+              option(value="Civil Engineering") Civil Engineering
+              option(value="Mathematics") Mathematics
+              option(value="Physics") Physics
+              option(value="Chemistry") Chemistry
+              option(value="Biology") Biology
+              option(value="Philosophy") Philosophy
+              option(value="Psychology") Psychology
+              option(value="Economics") Economics
+              option(value="Business Administration") Business Administration
+              option(value="History") History
+              option(value="English Literature") English Literature
+              option(value="Political Science") Political Science
+              option(value="Sociology") Sociology
+
+          //- Educator fields
+          #educatorFields.hidden.mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1(for="deptSelect") Department
+            select#deptSelect.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none.bg-white(class="focus:ring-2 focus:ring-blue-500")
+              option(value="Computer Science") Computer Science
+              option(value="Information Technology") Information Technology
+              option(value="Data Science") Data Science
+              option(value="Electrical Engineering") Electrical Engineering
+              option(value="Mechanical Engineering") Mechanical Engineering
+              option(value="Civil Engineering") Civil Engineering
+              option(value="Mathematics") Mathematics
+              option(value="Physics") Physics
+              option(value="Chemistry") Chemistry
+              option(value="Biology") Biology
+              option(value="Philosophy") Philosophy
+              option(value="Psychology") Psychology
+              option(value="Economics") Economics
+              option(value="Business Administration") Business Administration
+              option(value="History") History
+              option(value="English Literature") English Literature
+              option(value="Political Science") Political Science
+              option(value="Sociology") Sociology
+
+          button#signupBtn.w-full.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm.mt-2(class="hover:bg-blue-700 transition" type="submit") Create Account
+        p.text-center.text-sm.text-gray-500.mt-5
+          | Already have an account?&nbsp;
+          a.text-blue-600.font-semibold(class="hover:underline" href="/login") Sign in
+      p.text-center.text-sm.text-gray-400.mt-4
+        a(class="hover:text-gray-600" href="/") ← Back to home
+  script.
+    let role = 'student';
+
+    document.querySelectorAll('.role-btn').forEach(btn => btn.onclick = function(e) {
+      document.querySelectorAll('.role-btn').forEach(function(b) {
+        b.className = 'role-btn flex-1 py-2 text-gray-400 rounded-lg text-sm font-semibold';
+      });
+      e.target.className = 'role-btn flex-1 py-2 bg-white text-blue-600 rounded-lg shadow-sm text-sm font-semibold';
+      role = e.target.id === 'btnStudent' ? 'student' : 'educator';
+      document.getElementById('studentFields').classList.toggle('hidden', role !== 'student');
+      document.getElementById('educatorFields').classList.toggle('hidden', role !== 'educator');
+    });
+
+    document.getElementById('signupForm').onsubmit = async function(e) {
+      e.preventDefault();
+      var btn    = document.getElementById('signupBtn');
+      var errEl  = document.getElementById('errorMsg');
+      var nameVal  = document.getElementById('fullName').value.trim();
+      var emailVal = document.getElementById('userEmail').value.trim();
+      var passVal  = document.getElementById('userPassword').value;
+      var majorVal = document.getElementById('majorSelect').value;
+      var deptVal  = document.getElementById('deptSelect').value;
+
+      errEl.classList.add('hidden');
+
+      if (!nameVal || !emailVal || !passVal) {
+        errEl.textContent = 'Please fill in all required fields.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (passVal.length < 6) {
+        errEl.textContent = 'Password must be at least 6 characters.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      btn.textContent = 'Creating account...';
+      btn.disabled = true;
+
+      try {
+        var res  = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name      : nameVal,
+            email     : emailVal,
+            password  : passVal,
+            role      : role,
+            major     : majorVal,
+            department: deptVal
+          })
+        });
+        var data = await res.json();
+        if (data.success) {
+          location.href = '/login?registered=1';
+        } else {
+          errEl.textContent = data.message;
+          errEl.classList.remove('hidden');
+          btn.textContent = 'Create Account';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.classList.remove('hidden');
+        btn.textContent = 'Create Account';
+        btn.disabled = false;
+      }
+    };

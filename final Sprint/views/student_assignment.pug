@@ -1,0 +1,115 @@
+doctype html
+html(lang="en")
+  head
+    title #{assignment.title} | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body.bg-gray-100.min-h-screen
+
+    nav.bg-white.border-b.border-gray-200.fixed.w-full.z-30.top-0
+      .max-w-6xl.mx-auto.px-4.h-14.flex.justify-between.items-center(class="sm:h-16 sm:px-6")
+        .flex.items-center.gap-3
+          a.flex.items-center.justify-center.w-8.h-8.text-gray-400.rounded-lg(class="hover:bg-gray-100" href=`/student/class/${assignment.class_id}?tab=classwork`) ←
+          span.text-sm.font-semibold.text-gray-700.truncate.max-w-xs= assignment.className
+        button#menuBtn.w-8.h-8.bg-blue-600.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm.cursor-pointer= user.name.charAt(0)
+        #dropMenu.hidden.absolute.right-4.top-14.bg-white.border.border-gray-200.rounded-xl.shadow-lg.p-2.w-48.z-50(class="sm:right-6 sm:top-16")
+          button#logoutBtn.w-full.text-left.px-3.py-2.text-sm.text-red-600.rounded-lg(class="hover:bg-red-50") Sign out
+
+    main.max-w-4xl.mx-auto.pt-14.px-4.pb-12(class="sm:pt-20 sm:px-6")
+      .grid.grid-cols-1.gap-5.py-6(class="lg:grid-cols-3")
+
+        //- Assignment info (takes 2 cols on desktop)
+        .lg_col-span-2.space-y-5(class="lg:col-span-2")
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.overflow-hidden
+            .px-4.py-4.border-b.border-gray-100(class="sm:px-6 sm:py-5" style=`border-left:4px solid ${assignment.cover_color || '#1565C0'}`)
+              p.text-xs.text-gray-400.mb-2= assignment.className + ' · ' + assignment.educatorName
+              h1.text-lg.font-bold.text-gray-900(class="sm:text-xl")= assignment.title
+              .flex.flex-wrap.gap-3.mt-3
+                .flex.items-center.gap-1.text-xs.text-gray-500
+                  span 📅
+                  | Due #{new Date(assignment.due_date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
+                .flex.items-center.gap-1.text-xs.text-gray-500
+                  span 🏆
+                  | #{assignment.points} points
+            .px-4.py-4(class="sm:px-6 sm:py-6")
+              if assignment.description
+                p.text-gray-700.text-sm.leading-relaxed.whitespace-pre-wrap= assignment.description
+              else
+                p.text-gray-400.text-sm.italic No description provided.
+
+          if submission.status === 'Returned'
+            .bg-white.rounded-2xl.border.border-green-200.shadow-sm.p-4(class="sm:p-6")
+              h2.font-bold.text-gray-900.mb-4.text-sm(class="sm:text-base") Your grade
+              .flex.items-baseline.gap-2.mb-3
+                span.text-4xl.font-black.text-green-600(class="sm:text-5xl")= submission.grade
+                span.text-sm.text-gray-400 / #{assignment.points}
+              if submission.feedback
+                .bg-gray-50.rounded-xl.p-3.border.border-gray-100(class="sm:p-4")
+                  p.text-xs.font-semibold.text-gray-400.uppercase.tracking-wide.mb-2 Feedback
+                  p.text-sm.text-gray-700.leading-relaxed= submission.feedback
+
+        //- Submission panel
+        .space-y-4
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4(class="sm:p-5")
+            h2.font-bold.text-gray-900.mb-4.text-sm Your work
+
+            if submission.status === 'Turned In' || submission.status === 'Returned'
+              .flex.items-center.gap-2.mb-4
+                span.text-green-500 ✓
+                span.text-sm.font-semibold.text-green-700= submission.status === 'Turned In' ? 'Turned in' : 'Returned'
+              if submission.file_path
+                .bg-gray-50.border.border-gray-100.rounded-xl.p-3.flex.items-center.gap-3.mb-4
+                  span 📎
+                  div
+                    p.text-xs.font-medium.text-gray-700 Submitted file
+                    a.text-xs.text-blue-600(class="hover:underline" href=submission.file_path target="_blank") View →
+              if submission.status === 'Turned In'
+                button#unsubmitBtn.w-full.border.border-gray-200.text-gray-600.py-2.rounded-xl.text-sm.font-medium(class="hover:bg-gray-50") Unsubmit
+            else
+              form#submitForm(enctype="multipart/form-data")
+                .border-2.border-dashed.border-gray-200.rounded-xl.p-4.text-center.mb-4(class="hover:border-blue-300 transition sm:p-5")
+                  .text-2xl.mb-2 📎
+                  p.text-xs.text-gray-500.mb-3 Attach your work (optional)
+                  input#fileInput.text-xs.text-gray-500.w-full(type="file" name="submissionFile" accept=".pdf,.doc,.docx,.txt,.zip,.py,.js")
+                button#submitBtn.w-full.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700 transition" type="submit") Turn In
+
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4(class="sm:p-5")
+            p.text-xs.font-bold.text-gray-400.uppercase.tracking-wider.mb-3 Details
+            .space-y-2
+              .flex.justify-between.text-sm
+                span.text-gray-500 Status
+                span.font-semibold(class=submission.status==='Returned'?'text-green-600':submission.status==='Turned In'?'text-blue-600':'text-yellow-600')= submission.status || 'Assigned'
+              .flex.justify-between.text-sm
+                span.text-gray-500 Points
+                span.font-semibold.text-gray-900= assignment.points
+
+  script.
+    var assignmentId = '!{assignment.assignment_id}';
+    var submitForm   = document.getElementById('submitForm');
+    if (submitForm) {
+      submitForm.onsubmit = async function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('submitBtn');
+        btn.textContent = 'Turning in...'; btn.disabled = true;
+        var fd = new FormData(e.target);
+        fd.set('assignmentId', assignmentId);
+        var res = await fetch('/api/submit', { method: 'POST', body: fd });
+        if (res.ok) location.reload();
+        else { alert('Submission failed.'); btn.textContent = 'Turn In'; btn.disabled = false; }
+      };
+    }
+    var unsubBtn = document.getElementById('unsubmitBtn');
+    if (unsubBtn) {
+      unsubBtn.onclick = async function() {
+        if (!confirm('Unsubmit this assignment?')) return;
+        var res = await fetch('/api/unsubmit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assignmentId: assignmentId }) });
+        if (res.ok) location.reload();
+      };
+    }
+    document.getElementById('menuBtn').onclick = function(e) {
+      e.stopPropagation(); document.getElementById('dropMenu').classList.toggle('hidden');
+    };
+    document.addEventListener('click', function() { document.getElementById('dropMenu').classList.add('hidden'); });
+    document.getElementById('logoutBtn').onclick = async function() {
+      await fetch('/api/logout', { method: 'POST' }); localStorage.clear(); location.href = '/login';
+    };

@@ -1,0 +1,44 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Student Dashboard | StudyLink
+    link(rel="stylesheet", href="/css/style.css")
+  body.bg-gray-50
+    nav.bg-blue-600.text-white.p-4.shadow-lg
+      .container.mx-auto.flex.justify-between
+        h1.font-bold.text-xl StudyLink SMS
+        span Welcome, #{student.name}
+
+    main.container.mx-auto.mt-10.px-4.pb-12
+      .grid.grid-cols-1.gap-8(class="md:grid-cols-3")
+        
+        //- Profile Card
+        .bg-white.p-6.rounded-xl.shadow-md.border-t-4.border-blue-500
+          h2.text-gray-500.uppercase.text-xs.font-bold Student Profile
+          p.text-2xl.font-bold.mt-2 #{student.name}
+          p.text-sm.text-gray-600 #{student.major}
+          .mt-4.flex.justify-between.text-sm
+            span.font-semibold Roll: #{student.rollNo}
+            span.text-green-600.font-bold GPA: #{student.gpa}
+
+        //- Assignments List
+        .col-span-1.bg-white.p-6.rounded-xl.shadow-md(class="md:col-span-2")
+          h3.text-lg.font-bold.mb-6 Upcoming Assignments
+          .space-y-4
+            each task in tasks
+              .flex.flex-col.gap-3.p-4.border.rounded-lg.transition(class="hover:bg-blue-50 sm:flex-row sm:items-center sm:justify-between")
+                div
+                  h4.font-bold= task.title
+                  p.text-xs.text-gray-500= task.course
+                div.flex.items-center.space-x-4.justify-between(class="sm:justify-end")
+                  span.text-sm.text-gray-600= task.deadline
+                  
+                  //- Logic for Status Badges
+                  if task.status === 'Completed'
+                    span.bg-green-100.text-green-700.px-3.py-1.rounded-full.text-xs.font-bold= task.status
+                  else if task.status === 'In Progress'
+                    span.bg-yellow-100.text-yellow-700.px-3.py-1.rounded-full.text-xs.font-bold= task.status
+                  else
+                    span.bg-red-100.text-red-700.px-3.py-1.rounded-full.text-xs.font-bold= task.status

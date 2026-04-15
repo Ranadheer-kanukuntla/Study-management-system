@@ -1,0 +1,51 @@
+doctype html
+html(lang="en")
+  head
+    title StudyLink — Where Learning Happens
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body.bg-white
+    nav.fixed.w-full.top-0.z-50.bg-white.border-b.border-gray-100.shadow-sm
+      .max-w-6xl.mx-auto.px-6.h-16.flex.justify-between.items-center
+        .flex.items-center.gap-2
+          .w-8.h-8.bg-blue-600.rounded-lg.flex.items-center.justify-center.text-white.font-bold.text-sm SL
+          span.text-lg.font-bold.text-gray-900 StudyLink
+        .flex.items-center.gap-3
+          a.text-sm.font-medium.text-gray-600(class="hover:text-blue-600" href="/login") Sign In
+          a.bg-blue-600.text-white.text-sm.font-semibold.px-4.py-2.rounded-xl(class="hover:bg-blue-700 transition" href="/signup") Get Started
+
+    section.pt-28.pb-20.px-6.text-center
+      .max-w-3xl.mx-auto
+        span.bg-blue-50.text-blue-700.text-xs.font-bold.px-3.py-1.rounded-full Academic Management Platform
+        h1.text-5xl.font-extrabold.text-gray-900.mt-6.mb-6.leading-tight(class="sm:text-6xl") Learning, organised.
+        p.text-xl.text-gray-500.mb-10.leading-relaxed.max-w-2xl.mx-auto Create classes, assign work, submit and grade — all in one place. Built for universities.
+        .flex.flex-col.items-center.gap-4(class="sm:flex-row sm:justify-center")
+          a.bg-blue-600.text-white.font-bold.px-8.py-3.rounded-xl.text-base(class="hover:bg-blue-700 transition w-full sm:w-auto text-center" href="/signup") Get started free
+          a.border.border-gray-200.text-gray-700.font-semibold.px-8.py-3.rounded-xl.text-base(class="hover:border-blue-400 hover:text-blue-600 transition w-full sm:w-auto text-center" href="/login") Sign in
+
+    section.py-16.px-6.bg-gray-50
+      .max-w-5xl.mx-auto
+        .grid.grid-cols-1.gap-6(class="md:grid-cols-3")
+          .bg-white.rounded-2xl.p-8.border.border-gray-100.shadow-sm
+            .w-12.h-12.bg-blue-100.rounded-2xl.flex.items-center.justify-center.mb-5.text-2xl 🏫
+            h3.text-lg.font-bold.text-gray-900.mb-2 Classes
+            p.text-sm.text-gray-500.leading-relaxed Educators create classes with unique join codes. Students enroll — exactly like real classrooms.
+          .bg-white.rounded-2xl.p-8.border.border-gray-100.shadow-sm
+            .w-12.h-12.bg-green-100.rounded-2xl.flex.items-center.justify-center.mb-5.text-2xl 📋
+            h3.text-lg.font-bold.text-gray-900.mb-2 Assignments
+            p.text-sm.text-gray-500.leading-relaxed Post work to specific classes. Only enrolled students see it. File uploads, due dates, points — all included.
+          .bg-white.rounded-2xl.p-8.border.border-gray-100.shadow-sm
+            .w-12.h-12.bg-purple-100.rounded-2xl.flex.items-center.justify-center.mb-5.text-2xl 📊
+            h3.text-lg.font-bold.text-gray-900.mb-2 Grading
+            p.text-sm.text-gray-500.leading-relaxed See every student's submission in one view. Grade with feedback, track who hasn't submitted, return grades instantly.
+            
+    section.py-16.px-6.bg-blue-600
+      .max-w-2xl.mx-auto.text-center
+        h2.text-3xl.font-bold.text-white.mb-3 Ready to get started?
+        p.text-blue-200.mb-8 Free for all students and educators.
+        .flex.flex-col.items-center.gap-4(class="sm:flex-row sm:justify-center")
+          a.bg-white.text-blue-600.font-bold.px-8.py-3.rounded-xl(class="hover:bg-blue-50 transition w-full sm:w-auto text-center" href="/signup") Sign up as Student
+          a.border-2.border-white.text-white.font-bold.px-8.py-3.rounded-xl(class="hover:bg-blue-700 transition w-full sm:w-auto text-center" href="/signup") Sign up as Educator
+
+    footer.py-8.border-t.border-gray-100.text-center
+      p.text-sm.text-gray-400 © 2026 StudyLink. All rights reserved.

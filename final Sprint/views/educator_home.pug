@@ -1,0 +1,153 @@
+doctype html
+html(lang="en")
+  head
+    title My Classes | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    style.
+      .class-card { transition: box-shadow .15s, transform .15s; }
+      .class-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); transform: translateY(-2px); }
+  body.bg-gray-100.min-h-screen
+
+    nav.bg-white.border-b.border-gray-200.fixed.w-full.z-30.top-0
+      .max-w-6xl.mx-auto.px-4.h-14.flex.justify-between.items-center(class="sm:h-16 sm:px-6")
+        .flex.items-center.gap-2
+          .w-8.h-8.bg-blue-600.rounded-lg.flex.items-center.justify-center.text-white.font-bold.text-xs SL
+          span.text-base.font-bold.text-gray-900 StudyLink
+        .flex.items-center.gap-2(class="sm:gap-3")
+          button#createTopBtn.text-sm.font-medium.text-blue-600.border.border-blue-200.px-3.py-1.rounded-xl(class="hover:bg-blue-50 sm:px-4 sm:py-2") + Create
+          button#menuBtn.w-8.h-8.bg-blue-600.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm.cursor-pointer= user.name.charAt(0)
+          #dropMenu.hidden.absolute.right-4.top-14.bg-white.border.border-gray-200.rounded-xl.shadow-lg.p-2.w-52.z-50(class="sm:right-6 sm:top-16")
+            p.px-3.py-2.text-sm.font-semibold.text-gray-900.border-b.border-gray-100= user.name
+            p.px-3.py-1.text-xs.text-gray-500= user.department
+            button#logoutBtn.w-full.text-left.px-3.py-2.text-sm.text-red-600.rounded-lg.mt-1(class="hover:bg-red-50") Sign out
+
+    main.max-w-6xl.mx-auto.pt-14.px-4.pb-12(class="sm:pt-20 sm:px-6")
+      .flex.flex-col.gap-2.py-5(class="sm:flex-row sm:items-center sm:justify-between sm:py-6")
+        div
+          h1.text-xl.font-bold.text-gray-900(class="sm:text-2xl") My Classes
+          p.text-sm.text-gray-500.mt-1= user.name + ' · ' + user.department
+        button#createMainBtn.bg-blue-600.text-white.text-sm.font-bold.px-4.py-2.rounded-xl.flex.items-center.gap-2.w-fit(class="hover:bg-blue-700 sm:px-5") + Create class
+
+      if classes.length === 0
+        .text-center.py-16
+          .text-5xl.mb-4 🏫
+          h2.text-lg.font-bold.text-gray-700.mb-2(class="sm:text-xl") Create your first class
+          p.text-gray-400.text-sm.mb-6 Create a class and share the code with your students.
+          button#createEmptyBtn.bg-blue-600.text-white.px-6.py-2.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700") Create a class
+      else
+        .grid.grid-cols-1.gap-4(class="sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-5")
+          each cls in classes
+            .class-card.bg-white.rounded-2xl.overflow-hidden.border.border-gray-100.relative.group
+              .h-24.cursor-pointer.relative(style=`background-color:${cls.cover_color}` onclick=`location.href='/educator/class/${cls.class_id}'`)
+                .absolute.top-2.right-2
+                  button.delete-class-btn.bg-black.bg-opacity-30.text-white.text-xs.w-7.h-7.rounded-full.items-center.justify-center.hidden.group-hover_flex(class="hover:bg-opacity-60 flex" data-id=cls.class_id onclick="event.stopPropagation()") ×
+                .absolute.bottom-3.left-3
+                  p.text-white.font-mono.text-xs.bg-black.bg-opacity-20.px-2.py-1.rounded-lg= cls.class_code
+              .p-4.cursor-pointer(onclick=`location.href='/educator/class/${cls.class_id}'`)
+                h3.font-bold.text-gray-900.text-sm.leading-snug.mb-1= cls.name
+                p.text-xs.text-gray-500.mb-3= cls.subject + (cls.section ? ' · ' + cls.section : '')
+                .grid.grid-cols-2.gap-2.pt-3.border-t.border-gray-100
+                  .text-center
+                    p.text-base.font-bold.text-gray-900= cls.studentCount
+                    p.text-xs.text-gray-400 students
+                  .text-center
+                    p.text-base.font-bold.text-gray-900= cls.assignmentCount
+                    p.text-xs.text-gray-400 assignments
+
+    #createModal.hidden.fixed.inset-0.bg-black.bg-opacity-60.z-50.flex.items-end.justify-center.p-4(class="sm:items-center")
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-md.p-6(class="sm:p-8")
+        .flex.justify-between.items-center.mb-5
+          h2.text-lg.font-bold(class="sm:text-xl") Create class
+          button#closeCreate.text-gray-400.text-2xl.leading-none(class="hover:text-gray-600") ×
+        form#createForm
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1 Class name *
+            input#clsName.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" placeholder="e.g. Data Structures & Algorithms" required)
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1 Subject *
+            select#clsSubject.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none.bg-white(class="focus:ring-2 focus:ring-blue-500" required)
+              option(value="") Select subject...
+              option(value="Computer Science") Computer Science
+              option(value="Information Technology") Information Technology
+              option(value="Data Science") Data Science
+              option(value="Electrical Engineering") Electrical Engineering
+              option(value="Mechanical Engineering") Mechanical Engineering
+              option(value="Civil Engineering") Civil Engineering
+              option(value="Mathematics") Mathematics
+              option(value="Physics") Physics
+              option(value="Chemistry") Chemistry
+              option(value="Biology") Biology
+              option(value="Philosophy") Philosophy
+              option(value="Psychology") Psychology
+              option(value="Economics") Economics
+              option(value="Business Administration") Business Administration
+              option(value="History") History
+              option(value="English Literature") English Literature
+              option(value="Political Science") Political Science
+              option(value="Sociology") Sociology
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1 Section
+            input#clsSection.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" placeholder="e.g. Section A (optional)")
+          .mb-5
+            label.block.text-sm.font-semibold.text-gray-700.mb-1 Description
+            textarea#clsDesc.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none.resize-none(class="focus:ring-2 focus:ring-blue-500" rows="2" placeholder="Optional class description")
+          .flex.gap-3
+            button#cancelCreate.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200" type="button") Cancel
+            button#createBtn.flex-1.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700" type="submit") Create
+
+    #deleteModal.hidden.fixed.inset-0.bg-black.bg-opacity-60.z-50.flex.items-center.justify-center.p-4
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-sm.p-6.text-center(class="sm:p-8")
+        .text-4xl.mb-4 🗑️
+        h2.text-xl.font-bold.mb-2 Delete class?
+        p.text-sm.text-gray-500.mb-6 All assignments, submissions and enrollments will be permanently deleted.
+        .flex.gap-3
+          button#cancelDelete.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200") Cancel
+          button#confirmDelete.flex-1.bg-red-500.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-red-600") Delete
+
+  script.
+    var createModal = document.getElementById('createModal');
+    var deleteModal = document.getElementById('deleteModal');
+
+    function openCreate() { createModal.classList.remove('hidden'); }
+    function closeCreate() { createModal.classList.add('hidden'); }
+
+    document.getElementById('createTopBtn').onclick  = openCreate;
+    document.getElementById('createMainBtn').onclick = openCreate;
+    var ce = document.getElementById('createEmptyBtn');
+    if (ce) ce.onclick = openCreate;
+    document.getElementById('closeCreate').onclick  = closeCreate;
+    document.getElementById('cancelCreate').onclick = closeCreate;
+    createModal.onclick = function(e) { if (e.target === createModal) closeCreate(); };
+
+    document.getElementById('createForm').onsubmit = async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('createBtn');
+      btn.textContent = 'Creating...'; btn.disabled = true;
+      var res = await fetch('/api/create-class', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: clsName.value, subject: clsSubject.value, section: clsSection.value, description: clsDesc.value })
+      });
+      var data = await res.json();
+      if (data.success) { closeCreate(); location.reload(); }
+      else { alert('Failed to create class.'); btn.textContent = 'Create'; btn.disabled = false; }
+    };
+
+    var pendingDeleteId = null;
+    document.querySelectorAll('.delete-class-btn').forEach(function(btn) {
+      btn.onclick = function(e) { e.stopPropagation(); pendingDeleteId = btn.dataset.id; deleteModal.classList.remove('hidden'); };
+    });
+    document.getElementById('cancelDelete').onclick  = function() { deleteModal.classList.add('hidden'); };
+    document.getElementById('confirmDelete').onclick = async function() {
+      if (!pendingDeleteId) return;
+      var res = await fetch('/api/class/' + pendingDeleteId, { method: 'DELETE' });
+      if (res.ok) { deleteModal.classList.add('hidden'); location.reload(); }
+    };
+
+    document.getElementById('menuBtn').onclick = function(e) {
+      e.stopPropagation(); document.getElementById('dropMenu').classList.toggle('hidden');
+    };
+    document.addEventListener('click', function() { document.getElementById('dropMenu').classList.add('hidden'); });
+    document.getElementById('logoutBtn').onclick = async function() {
+      await fetch('/api/logout', { method: 'POST' }); localStorage.clear(); location.href = '/login';
+    };

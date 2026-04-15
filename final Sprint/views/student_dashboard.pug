@@ -1,0 +1,111 @@
+doctype html
+html(lang="en")
+  head
+    title Dashboard | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body.bg-gray-50
+    include navbar
+    
+    main.max-w-7xl.mx-auto.pt-24.px-4.pb-12(class="sm:px-6")
+      .grid.grid-cols-1.gap-8(class="lg:grid-cols-3")
+
+        //- Left Column: Profile & Announcements
+        .space-y-6(class="lg:col-span-1")
+          .bg-white.rounded-2xl.shadow-sm.border.p-6(style="border-top:4px solid #3b82f6")
+            p.text-xs.font-bold.text-gray-400.uppercase.tracking-wider.mb-3 Profile
+            p.text-xl.font-bold #{user.name}
+            p.text-sm.text-gray-500 #{user.major}
+            .grid.grid-cols-2.gap-3.mt-4
+               .bg-blue-50.rounded-xl.p-3
+                p.text-xs.text-blue-600.font-medium.mb-1 Roll No
+                p.text-sm.font-bold.text-blue-900= user.studentID
+               .bg-green-50.rounded-xl.p-3
+                p.text-xs.text-green-600.font-medium.mb-1 GPA
+                p.text-sm.font-bold.text-green-900= user.gpa
+
+          .bg-white.rounded-2xl.shadow-sm.border.p-6
+            p.text-xs.font-bold.text-gray-400.uppercase.tracking-wider.mb-4 Announcements
+            if announcements && announcements.length
+              .space-y-3
+                each ann in announcements
+                  .bg-blue-50.rounded-xl.p-4.border-l-4.border-blue-500
+                    p.text-sm.font-medium.text-blue-900= ann.message
+                    p.text-xs.text-blue-500.mt-2 #{ann.educatorName} · #{ann.department}
+            else
+              p.text-sm.text-gray-400.italic.bg-gray-50.p-4.rounded-xl No announcements yet.
+
+        //- Right Column: Assignments
+        .bg-white.rounded-2xl.shadow-sm.border.p-6(class="lg:col-span-2")
+          h2.text-lg.font-bold.mb-5 Assignments
+          .grid.grid-cols-1.gap-3.mb-6(class="sm:grid-cols-3")
+            select#deptFilter.border.border-gray-200.rounded-xl.px-3.py-2.text-sm.outline-none.bg-white
+              option(value="") All Departments
+              option(value="Computer Science") Computer Science
+              option(value="Philosophy") Philosophy
+              option(value="Pure Mathematics") Pure Mathematics
+            input#titleFilter.border.border-gray-200.rounded-xl.px-3.py-2.text-sm.outline-none(type="text" placeholder="Search title...")
+            input#codeFilter.border.border-gray-200.rounded-xl.px-3.py-2.text-sm.outline-none(type="text" placeholder="Code e.g. ASG001")
+            
+          #assignmentList
+            if tasks.length === 0
+              .text-center.py-12.border-2.border-dashed.border-gray-100.rounded-2xl
+                p.text-gray-400.italic No assignments yet.
+            else
+              each task in tasks
+                .assignment-item.flex.flex-col.gap-3.py-4.border-b.border-gray-50(class="sm:flex-row sm:items-center sm:justify-between" data-dept=task.course data-title=task.title.toLowerCase() data-code=task.assignmentID.toLowerCase())
+                  div
+                    a.font-semibold.text-blue-600.text-sm(class="hover:underline" href=`/student/assignment/${task.assignmentID}`)= task.title
+                    p.text-xs.text-gray-400.mt-1 #{task.course} · Due #{task.dueDate}
+                  .flex.items-center.gap-3.shrink-0
+                    if task.status === 'Completed'
+                      span.text-xs.font-bold.text-green-600.bg-green-50.px-3.py-1.rounded-full ✔ Done
+                    else
+                      button.submit-btn.text-xs.font-semibold.bg-blue-600.text-white.px-4.py-2.rounded-full(class="hover:bg-blue-700 transition" data-id=task.assignmentID data-title=task.title) Submit
+
+    //- Submit Modal
+    #uploadModal.fixed.inset-0.bg-black.bg-opacity-60.hidden.z-50.flex.items-center.justify-center.p-4
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-md.p-6(class="sm:p-8")
+        h2.text-xl.font-bold.mb-1 Submit Assignment
+        p#modalTitle.text-sm.text-gray-400.mb-6
+        form#uploadForm(enctype="multipart/form-data")
+          input(type="hidden" id="hiddenAsgID")
+          .border-2.border-dashed.border-blue-200.rounded-xl.p-6.text-center.bg-blue-50.mb-5
+            p.text-sm.text-gray-500.mb-1 Attach file (optional)
+            p.text-xs.text-gray-400 PDF · DOC · TXT · ZIP · PY · JS — max 10 MB
+            input.mt-3.w-full.text-sm.text-gray-500(type="file" name="submissionFile" accept=".pdf,.doc,.docx,.txt,.zip,.py,.js")
+          .flex.gap-3
+            button#cancelBtn.flex-1.bg-gray-100.py-2.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200" type="button") Cancel
+            button.flex-1.bg-blue-600.text-white.py-2.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700" type="submit") Submit Now
+
+  script.
+    const modal = document.getElementById('uploadModal');
+    function filter() {
+      const d = document.getElementById('deptFilter').value;
+      const t = document.getElementById('titleFilter').value.toLowerCase();
+      const c = document.getElementById('codeFilter').value.toLowerCase();
+      document.querySelectorAll('.assignment-item').forEach(item => {
+        item.style.display = (!d || item.dataset.dept === d) && item.dataset.title.includes(t) && item.dataset.code.includes(c) ? 'flex' : 'none';
+      });
+    }
+    document.getElementById('deptFilter').onchange = filter;
+    document.getElementById('titleFilter').oninput  = filter;
+    document.getElementById('codeFilter').oninput   = filter;
+
+    document.querySelectorAll('.submit-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.getElementById('hiddenAsgID').value      = btn.dataset.id;
+        document.getElementById('modalTitle').textContent = btn.dataset.title;
+        modal.classList.remove('hidden');
+      };
+    });
+
+    document.getElementById('cancelBtn').onclick = () => modal.classList.add('hidden');
+    document.getElementById('uploadForm').onsubmit = async e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      fd.set('assignmentID', document.getElementById('hiddenAsgID').value);
+      const res = await fetch('/api/submit', { method: 'POST', body: fd });
+      if (res.ok) { modal.classList.add('hidden'); location.reload(); }
+      else alert('Submission failed.');
+    };
