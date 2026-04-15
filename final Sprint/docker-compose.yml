@@ -1,32 +1,40 @@
 services:
   mysql:
-    image: mysql:8.0
-    container_name: studylink_mysql
-    restart: unless-stopped
+    image: mysql:8.0  # Use MySQL version 8.0
+    container_name: studylink_mysql  # Name of the MySQL container
+    restart: unless-stopped  # Restart container unless manually stopped
+
     environment:
-      MYSQL_ROOT_PASSWORD: root_secret
-      MYSQL_DATABASE: studylink
-      MYSQL_USER: studylink_user
-      MYSQL_PASSWORD: studylink_pass
+      MYSQL_ROOT_PASSWORD: root_secret  # Root user password
+      MYSQL_DATABASE: studylink  # Default database to be created
+      MYSQL_USER: studylink_user  # Custom database user
+      MYSQL_PASSWORD: studylink_pass  # Password for custom user
+
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:3306:3306"  # Bind MySQL to localhost (secure access)
+
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./data/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - mysql_data:/var/lib/mysql  # Persist database data
+      - ./data/schema.sql:/docker-entrypoint-initdb.d/schema.sql  # Auto-run schema on startup
+
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot_secret"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot_secret"]  # Check DB status
+      interval: 10s  # Check every 10 seconds
+      timeout: 5s  # Timeout for each check
+      retries: 10  # Retry attempts before marking unhealthy
+      start_period: 30s  # Initial delay before starting checks
+
   adminer:
-    image: adminer
-    container_name: studylink_adminer
-    restart: unless-stopped
+    image: adminer  # Lightweight database management UI
+    container_name: studylink_adminer  # Name of Adminer container
+    restart: unless-stopped  # Restart policy
+
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8080:8080"  # Access Adminer via localhost:8080
+
     depends_on:
       mysql:
-        condition: service_healthy
+        condition: service_healthy  # Start only when MySQL is ready
+
 volumes:
-  mysql_data:
+  mysql_data:  # Named volume to store MySQL data persistently
