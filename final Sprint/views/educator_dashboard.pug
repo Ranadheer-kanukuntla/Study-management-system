@@ -1,0 +1,161 @@
+doctype html
+html(lang="en")
+  head
+    title Educator Dashboard | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body.bg-gray-50
+
+    //- Standardized Top Navbar (Replaced the cluttered aside)
+    nav.bg-white.border-b.border-gray-200.fixed.w-full.z-30.top-0.shadow-sm
+      .max-w-7xl.mx-auto.px-4.h-16.flex.justify-between.items-center(class="sm:px-6")
+        .flex.items-center.gap-2
+          .w-8.h-8.bg-blue-600.rounded-lg.flex.items-center.justify-center.text-white.font-bold.text-xs SL
+          span.text-base.font-bold.text-gray-900 StudyLink
+        .flex.items-center.gap-3
+          button#annBtn.text-sm.font-medium.text-blue-600.border.border-blue-200.px-3.py-1.rounded-xl(class="hover:bg-blue-50 hidden sm:block sm:px-4 sm:py-2") Broadcast
+          button#menuBtn.relative.flex.items-center.gap-2.cursor-pointer(type="button")
+            .w-8.h-8.bg-blue-600.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm= user.name.charAt(0)
+          #dropMenu.hidden.absolute.right-4.top-16.bg-white.border.border-gray-200.rounded-xl.shadow-lg.p-2.w-52.z-50
+            p.px-3.py-2.text-sm.font-semibold.text-gray-900.border-b.border-gray-100= user.name
+            p.px-3.py-1.text-xs.text-gray-500= user.department
+            button#annBtnMobile.w-full.text-left.px-3.py-2.text-sm.text-blue-600.rounded-lg.mt-1(class="sm:hidden hover:bg-blue-50") Broadcast
+            button#logoutBtn.w-full.text-left.px-3.py-2.text-sm.text-red-600.rounded-lg.mt-1(class="hover:bg-red-50") Sign out
+
+    main.max-w-7xl.mx-auto.pt-24.px-4.pb-12(class="sm:px-6")
+      .flex.flex-col.gap-4.mb-10(class="sm:flex-row sm:justify-between sm:items-center")
+        div
+          h1.text-2xl.font-bold(class="sm:text-3xl") Educator Dashboard
+          p.text-sm.text-gray-400.mt-1 #{user.name} · #{user.department}
+        button#openCreateBtn.bg-blue-600.text-white.px-5.py-3.rounded-xl.font-bold.text-sm.w-full(class="sm:w-auto hover:bg-blue-700 transition flex items-center justify-center gap-2") 
+          span +
+          | New Assignment
+
+      .grid.grid-cols-1.gap-6.mb-8#analytics(class="lg:grid-cols-3")
+        .bg-white.rounded-2xl.border.shadow-sm.p-6(class="lg:col-span-2")
+          .flex.justify-between.items-center.mb-6
+            h2.font-bold.text-gray-800 Student Performance
+            span#chartLabel.text-xs.font-semibold.text-blue-600.bg-blue-50.px-3.py-1.rounded-full
+          .h-56.w-full
+            canvas#perfChart
+
+        .bg-white.rounded-2xl.border.shadow-sm.p-6
+          h2.font-bold.mb-4.text-gray-800 Submissions Overview
+          if tasks.length === 0
+            .py-10.text-center
+              p.text-sm.text-gray-400.italic No assignments yet.
+          else
+            .space-y-4.overflow-y-auto.max-h-56.pr-2
+              each task in tasks
+                .bg-gray-50.p-3.rounded-xl.border.border-gray-100
+                  p.text-sm.font-semibold.truncate.text-gray-800= task.title
+                  .flex.justify-between.items-center.mt-2
+                    span.text-xs.font-bold.bg-green-100.text-green-700.px-2.py-1.rounded-md #{task.completedSubmissions} / #{task.totalSubmissions}
+                    a.text-xs.text-blue-600.font-bold(class="hover:underline" href=`/educator/assignment/${task.assignmentID}`) Grade →
+
+      .bg-white.rounded-2xl.border.shadow-sm.overflow-hidden#assignments
+        .px-6.py-5.border-b.border-gray-100.bg-gray-50
+          h2.font-bold.text-gray-800 Master Assignment List
+        .overflow-x-auto
+          table.w-full.text-sm.min-w-max
+            thead
+              tr.text-xs.text-gray-400.uppercase.border-b.border-gray-100.bg-white
+                th.px-6.py-4.text-left.font-semibold Title
+                th.px-6.py-4.text-left.font-semibold Course
+                th.px-6.py-4.text-left.font-semibold Due Date
+                th.px-6.py-4.text-left.font-semibold Progress
+                th.px-6.py-4
+            tbody.bg-white
+              if tasks.length === 0
+                tr
+                  td.px-6.py-12.text-center.text-gray-400.italic(colspan="5") No assignments yet. Create one!
+              else
+                each task in tasks
+                  tr.border-t.border-gray-50.transition(class="hover:bg-blue-50/30")
+                    td.px-6.py-4.font-medium.text-gray-800= task.title
+                    td.px-6.py-4.text-gray-500= task.course
+                    td.px-6.py-4.text-gray-500= task.dueDate
+                    td.px-6.py-4
+                      .flex.items-center.gap-2
+                        .w-16.h-2.bg-gray-200.rounded-full.overflow-hidden
+                          .h-full.bg-green-500(style=`width: ${(task.completedSubmissions / (task.totalSubmissions || 1)) * 100}%`)
+                        span.text-xs.font-medium.text-gray-500 #{task.completedSubmissions}/#{task.totalSubmissions}
+                    td.px-6.py-4.text-right
+                      a.text-blue-600.text-sm.font-semibold.bg-blue-50.px-4.py-2.rounded-xl(class="hover:bg-blue-100 transition" href=`/educator/assignment/${task.assignmentID}`) Grade
+
+    //- Modals
+    #createModal.fixed.inset-0.bg-black.bg-opacity-60.hidden.z-50.flex.items-center.justify-center.p-4
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-md.p-6(class="sm:p-8")
+        h2.text-xl.font-bold.mb-6 Create Assignment
+        form#createForm
+          input#asgTitle.w-full.border.border-gray-200.rounded-xl.p-3.text-sm.mb-4.outline-none(class="focus:ring-2 focus:ring-blue-500" placeholder="Assignment Title" required)
+          .grid.grid-cols-2.gap-3.mb-4
+            input#asgCourse.w-full.border.border-gray-200.rounded-xl.p-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" placeholder="Course Name")
+            input#asgDate.w-full.border.border-gray-200.rounded-xl.p-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="date" required)
+          textarea#asgDesc.w-full.border.border-gray-200.rounded-xl.p-3.text-sm.mb-6.outline-none(class="focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Description/Instructions")
+          .flex.gap-3
+            button#cancelCreate.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-semibold.text-gray-600(class="hover:bg-gray-200" type="button") Cancel
+            button.flex-1.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700" type="submit") Create
+
+    #annModal.fixed.inset-0.bg-black.bg-opacity-60.hidden.z-50.flex.items-center.justify-center.p-4
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-md.p-6(class="sm:p-8")
+        h2.text-xl.font-bold.mb-1 Broadcast Message
+        p.text-xs.text-gray-400.mb-5 Sent to all students in #{user.department}
+        form#annForm
+          textarea#annText.w-full.border.border-gray-200.rounded-xl.p-4.text-sm.mb-6.outline-none.resize-none(class="focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Your message..." required)
+          .flex.gap-3
+            button#cancelAnn.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-semibold.text-gray-600(class="hover:bg-gray-200" type="button") Cancel
+            button.flex-1.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700" type="submit") Send
+
+  script.
+    document.getElementById('openCreateBtn').onclick = () => createModal.classList.remove('hidden');
+    document.getElementById('cancelCreate').onclick  = () => createModal.classList.add('hidden');
+    document.getElementById('annBtn').onclick        = () => annModal.classList.remove('hidden');
+    document.getElementById('annBtnMobile').onclick  = () => { dropMenu.classList.add('hidden'); annModal.classList.remove('hidden'); };
+    document.getElementById('cancelAnn').onclick     = () => annModal.classList.add('hidden');
+    
+    const menuBtn = document.getElementById('menuBtn');
+    const dropMenu = document.getElementById('dropMenu');
+    menuBtn.onclick = (e) => { e.stopPropagation(); dropMenu.classList.toggle('hidden'); };
+    document.addEventListener('click', () => dropMenu.classList.add('hidden'));
+
+    document.getElementById('logoutBtn').onclick = async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      localStorage.clear(); location.href = '/login';
+    };
+    
+    document.getElementById('createForm').onsubmit = async e => {
+      e.preventDefault();
+      const res = await fetch('/api/create-assignment', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: asgTitle.value, course: asgCourse.value, dueDate: asgDate.value, description: asgDesc.value })
+      });
+      if (res.ok) { createModal.classList.add('hidden'); location.reload(); }
+    };
+    
+    document.getElementById('annForm').onsubmit = async e => {
+      e.preventDefault();
+      const res = await fetch('/api/announce', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: annText.value })
+      });
+      if (res.ok) { alert('Announcement sent!'); annModal.classList.add('hidden'); annForm.reset(); }
+    };
+
+    (async () => {
+      const d = await (await fetch('/api/analytics/performance')).json();
+      document.getElementById('chartLabel').textContent = d.real ? 'Live data' : 'Sample data';
+      new Chart(document.getElementById('perfChart'), {
+        type: 'line',
+        data: {
+          labels: d.labels,
+          datasets: [{ label: 'Avg %', data: d.data, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.07)', tension: 0.4, fill: true, pointBackgroundColor: '#2563eb', pointRadius: 4 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: false, min: 50, max: 100 } }
+        }
+      });
+    })();

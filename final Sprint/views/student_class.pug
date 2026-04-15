@@ -1,0 +1,163 @@
+doctype html
+html(lang="en")
+  head
+    title #{cls.name} | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body(class="bg-gray-50 min-h-screen font-sans text-gray-900")
+
+    //- Clean Navbar
+    nav(class="bg-white border-b border-gray-200 fixed w-full z-30 top-0 shadow-sm")
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center")
+        div(class="flex items-center gap-3")
+          a(class="flex items-center justify-center w-8 h-8 text-gray-500 hover:bg-gray-100 rounded-lg transition" href="/student/dashboard") ←
+          span(class="text-xl font-bold text-gray-900 tracking-tight hidden sm:block") StudyLink
+        div(class="relative")
+          button#menuBtn(class="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:bg-blue-700 transition shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" type="button")= user.name.charAt(0)
+          #dropMenu(class="hidden absolute right-0 top-12 bg-white border border-gray-100 rounded-xl shadow-lg py-2 w-56 z-50")
+            div(class="px-4 py-3 border-b border-gray-50 mb-1")
+              p(class="text-sm font-bold text-gray-900 truncate")= user.name
+            button#logoutBtn(class="w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition") Sign out
+
+    //- Class Header Banner
+    div(class="pt-16")
+      div(class="relative" style=`background-color:${cls.cover_color || '#2563eb'}`)
+        div(class="absolute inset-0 bg-black/10") 
+        div(class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10")
+          if cls.section
+            p(class="text-xs sm:text-sm text-white/90 font-medium mb-1 tracking-wide uppercase")= cls.subject + ' · ' + cls.section
+          else
+            p(class="text-xs sm:text-sm text-white/90 font-medium mb-1 tracking-wide uppercase")= cls.subject
+          h1(class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight")= cls.name
+          p(class="text-sm text-white/80 mt-2 font-medium")= cls.educatorName + ' · ' + cls.department
+
+    //- Tab Navigation
+    div(class="bg-white border-b border-gray-200 sticky top-16 z-20 shadow-sm")
+      div(class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8")
+        div(class="flex overflow-x-auto hide-scrollbar")
+          a(class=`whitespace-nowrap px-5 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'stream' || !activeTab ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}` href=`/student/class/${cls.class_id}?tab=stream`) Stream
+          a(class=`whitespace-nowrap px-5 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'classwork' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}` href=`/student/class/${cls.class_id}?tab=classwork`) Classwork
+          a(class=`whitespace-nowrap px-5 py-4 text-sm font-bold border-b-2 transition ${activeTab === 'people' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}` href=`/student/class/${cls.class_id}?tab=people`) People
+
+    //- Main Tab Content
+    main(class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8")
+
+      //- 1. STREAM TAB
+      if activeTab === 'stream' || !activeTab
+        div(class="max-w-3xl mx-auto space-y-6")
+          // Class Code Card
+          div(class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4")
+            div
+              p(class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1") Class code
+              p(class="text-2xl font-mono font-bold text-blue-600 tracking-widest")= cls.class_code
+            button#copyCode(class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition whitespace-nowrap") Copy code
+
+          // Announcements
+          if announcements.length === 0
+            div(class="bg-white rounded-2xl border border-gray-200 border-dashed shadow-sm p-12 text-center")
+              div(class="text-4xl mb-4") 📢
+              h3(class="text-lg font-bold text-gray-900") No announcements yet
+              p(class="text-sm text-gray-500 mt-1") Check back later for updates from your educator.
+          else
+            div(class="space-y-4")
+              each ann in announcements
+                div(class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6")
+                  div(class="flex items-center gap-3 mb-4")
+                    div(class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm" style=`background-color:${cls.cover_color || '#2563eb'}`)= ann.educatorName.charAt(0)
+                    div
+                      p(class="font-bold text-gray-900 text-sm")= ann.educatorName
+                      p(class="text-xs font-medium text-gray-500")= new Date(ann.created_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})
+                  p(class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap")= ann.message
+
+      //- 2. CLASSWORK TAB
+      if activeTab === 'classwork'
+        div(class="max-w-4xl mx-auto")
+          if assignments.length === 0
+            div(class="text-center py-16 bg-white rounded-2xl border border-gray-200 border-dashed shadow-sm")
+              div(class="text-5xl mb-4") 📋
+              h3(class="text-lg font-bold text-gray-900") No assignments yet
+              p(class="text-sm text-gray-500 mt-1") You are all caught up!
+          else
+            div(class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden")
+              each asg, i in assignments
+                div(class=`flex flex-col sm:flex-row sm:items-center justify-between p-5 cursor-pointer hover:bg-blue-50/50 transition duration-150 group ${i > 0 ? 'border-t border-gray-100' : ''}` onclick=`location.href='/student/class/${cls.class_id}/assignment/${asg.assignment_id}'`)
+                  div(class="flex items-start sm:items-center gap-4 min-w-0 mb-3 sm:mb-0")
+                    div(class="w-10 h-10 rounded-full flex items-center justify-center text-white text-base shrink-0 shadow-sm" style=`background-color:${cls.cover_color || '#2563eb'}`) 📋
+                    div(class="min-w-0")
+                      p(class="font-bold text-gray-900 text-base truncate group-hover:text-blue-700 transition")= asg.title
+                      p(class="text-xs font-medium text-gray-500 mt-1") Due #{new Date(asg.due_date).toLocaleDateString('en-IN', {day:'numeric', month:'short'})}
+                  
+                  div(class="flex items-center justify-end sm:justify-start gap-3 shrink-0 ml-14 sm:ml-0")
+                    if asg.submissionStatus === 'Turned In'
+                      span(class="text-xs font-bold text-blue-700 bg-blue-100 px-3 py-1.5 rounded-md") Turned in
+                    else if asg.submissionStatus === 'Returned'
+                      span(class="text-xs font-bold text-green-700 bg-green-100 px-3 py-1.5 rounded-md")= 'Graded' + (asg.grade ? ' · ' + asg.grade : '')
+                    else
+                      span(class="text-xs font-bold text-yellow-700 bg-yellow-100 px-3 py-1.5 rounded-md") Assigned
+                    span(class="text-gray-300 hidden sm:block group-hover:text-blue-500 transition font-bold") →
+
+      //- 3. PEOPLE TAB
+      if activeTab === 'people'
+        div(class="max-w-3xl mx-auto space-y-6")
+          
+          // Educator Section
+          div(class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden")
+            div(class="px-6 py-4 border-b border-gray-100 bg-gray-50")
+              h2(class="font-bold text-gray-900 text-sm tracking-wide uppercase") Educator
+            div(class="px-6 py-5 flex items-center gap-4 bg-white")
+              div(class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm" style=`background-color:${cls.cover_color || '#2563eb'}`)= cls.educatorName.charAt(0)
+              div
+                p(class="font-bold text-gray-900 text-base")= cls.educatorName
+                p(class="text-sm font-medium text-gray-500")= cls.department
+          
+          // Classmates Section
+          div(class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden")
+            div(class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center")
+              h2(class="font-bold text-gray-900 text-sm tracking-wide uppercase") Classmates
+              span(class="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full")= classmates.length + ' students'
+            
+            if classmates.length === 0
+              div(class="px-6 py-8 text-sm font-medium text-gray-500 text-center bg-white") No other students enrolled yet.
+            else
+              div(class="divide-y divide-gray-100 bg-white")
+                each student in classmates
+                  div(class="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition")
+                    div(class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-bold text-sm shrink-0 border border-gray-200")= student.name.charAt(0)
+                    p(class="text-sm font-bold text-gray-800")= student.name
+          
+          // Leave Class Danger Zone
+          div(class="bg-red-50 rounded-2xl border border-red-100 shadow-sm p-6 mt-8")
+            div(class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4")
+              div
+                h3(class="text-sm font-bold text-red-900") Leave this class
+                p(class="text-xs font-medium text-red-700/80 mt-1") You will lose access to assignments, but can rejoin later with the code.
+              button#leaveBtn(class="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition whitespace-nowrap") Leave class
+
+  script.
+    var copyBtn = document.getElementById('copyCode');
+    if (copyBtn) {
+      copyBtn.onclick = function() {
+        navigator.clipboard.writeText('!{cls.class_code}');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(function() { copyBtn.textContent = 'Copy code'; }, 2000);
+      };
+    }
+    
+    var leaveBtn = document.getElementById('leaveBtn');
+    if (leaveBtn) {
+      leaveBtn.onclick = async function() {
+        if (!confirm('Leave "!{cls.name}"? You can rejoin later with the class code.')) return;
+        var res = await fetch('/api/leave-class/!{cls.class_id}', { method: 'DELETE' });
+        if (res.ok) location.href = '/student/dashboard';
+      };
+    }
+    
+    const menuBtn = document.getElementById('menuBtn');
+    const dropMenu = document.getElementById('dropMenu');
+    menuBtn.onclick = (e) => { e.stopPropagation(); dropMenu.classList.toggle('hidden'); };
+    document.addEventListener('click', () => dropMenu.classList.add('hidden'));
+
+    document.getElementById('logoutBtn').onclick = async function() {
+      await fetch('/api/logout', { method: 'POST' });
+      localStorage.clear(); location.href = '/login';
+    };

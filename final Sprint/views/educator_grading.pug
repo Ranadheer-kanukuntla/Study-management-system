@@ -1,0 +1,147 @@
+doctype html
+html(lang="en")
+  head
+    title Grading | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body.bg-gray-100.min-h-screen
+
+    nav.bg-white.border-b.border-gray-200.fixed.w-full.z-30.top-0
+      .max-w-6xl.mx-auto.px-4.h-14.flex.justify-between.items-center(class="sm:h-16 sm:px-6")
+        .flex.items-center.gap-3
+          a.flex.items-center.justify-center.w-8.h-8.text-gray-400.rounded-lg(class="hover:bg-gray-100" href=`/educator/class/${assignment.class_id}?tab=classwork`) ←
+          span.text-sm.font-semibold.text-gray-700.hidden(class="sm:block")= cls.name
+        button#menuBtn.w-8.h-8.bg-blue-600.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm.cursor-pointer= user.name.charAt(0)
+        #dropMenu.hidden.absolute.right-4.top-14.bg-white.border.border-gray-200.rounded-xl.shadow-lg.p-2.w-48.z-50(class="sm:right-6 sm:top-16")
+          button#logoutBtn.w-full.text-left.px-3.py-2.text-sm.text-red-600.rounded-lg(class="hover:bg-red-50") Sign out
+
+    main.max-w-5xl.mx-auto.pt-14.px-4.pb-12(class="sm:pt-20 sm:px-6")
+
+      .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4.my-5(class="sm:p-6 sm:my-6")
+        .flex.flex-col.gap-4(class="sm:flex-row sm:justify-between sm:items-start")
+          div
+            .flex.items-center.gap-2.mb-2
+              a.text-xs.text-blue-600(class="hover:underline" href=`/educator/class/${assignment.class_id}?tab=classwork`)= cls.name
+              span.text-gray-300 /
+              span.text-xs.text-gray-500 Grading
+            h1.text-lg.font-bold.text-gray-900(class="sm:text-xl")= assignment.title
+            .flex.flex-wrap.gap-3.mt-2
+              span.text-xs.text-gray-500 📅 Due #{new Date(assignment.due_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+              span.text-xs.text-gray-500 🏆 #{assignment.points} points
+          .grid.grid-cols-3.gap-2.text-center
+            .bg-blue-50.rounded-xl.px-3.py-2
+              p.text-base.font-bold.text-blue-700= studentSubmissions.filter(function(s){return s.status==='Turned In'||s.status==='Returned';}).length
+              p.text-xs.text-blue-600 Turned in
+            .bg-yellow-50.rounded-xl.px-3.py-2
+              p.text-base.font-bold.text-yellow-700= studentSubmissions.filter(function(s){return s.status==='Assigned';}).length
+              p.text-xs.text-yellow-600 Not submitted
+            .bg-green-50.rounded-xl.px-3.py-2
+              p.text-base.font-bold.text-green-700= studentSubmissions.filter(function(s){return s.grade;}).length
+              p.text-xs.text-green-600 Graded
+
+      if studentSubmissions.length === 0
+        .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-12.text-center
+          .text-5xl.mb-4 📭
+          p.text-lg.font-medium.text-gray-700 No submissions yet
+          p.text-sm.text-gray-400.mt-2 Students haven't submitted this assignment yet.
+      else
+        //- Mobile: stacked cards
+        .space-y-4.block(class="lg:hidden")
+          each sub in studentSubmissions
+            .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4(class="sm:p-5")
+              .flex.justify-between.items-start.mb-4
+                .flex.items-center.gap-3
+                  .w-9.h-9.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm.shrink-0(style=`background-color:${cls.cover_color}`)= sub.studentName.charAt(0)
+                  div
+                    p.font-semibold.text-gray-900.text-sm= sub.studentName
+                    p.text-xs.text-gray-400= sub.studentID
+                if sub.status === 'Turned In'
+                  span.text-xs.font-bold.text-blue-600.bg-blue-50.px-2.py-1.rounded-full Turned in
+                else if sub.status === 'Returned'
+                  span.text-xs.font-bold.text-green-600.bg-green-50.px-2.py-1.rounded-full Returned
+                else
+                  span.text-xs.font-bold.text-gray-400.bg-gray-100.px-2.py-1.rounded-full Not submitted
+              if sub.turnedInAt
+                p.text-xs.text-gray-400.mb-3 Submitted #{sub.turnedInAt}
+              if sub.filePath
+                a.inline-flex.items-center.gap-1.text-xs.text-blue-600.font-medium.mb-3(class="hover:underline" href=sub.filePath target="_blank") 📎 View submission
+              .grid.grid-cols-2.gap-3.mb-3
+                div
+                  label.text-xs.font-semibold.text-gray-600.block.mb-1 Grade
+                  input.grade-input.w-full.border.border-gray-200.rounded-xl.px-3.py-2.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="text" value=sub.grade||"" placeholder="e.g. 88" maxlength="5")
+                div
+                  label.text-xs.font-semibold.text-gray-600.block.mb-1 Out of
+                  input.w-full.border.border-gray-100.rounded-xl.px-3.py-2.text-sm.bg-gray-50.text-gray-400(type="text" value=assignment.points disabled)
+              div.mb-3
+                label.text-xs.font-semibold.text-gray-600.block.mb-1 Feedback
+                input.feedback-input.w-full.border.border-gray-200.rounded-xl.px-3.py-2.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="text" value=sub.feedback||"" placeholder="Write feedback...")
+              button.save-btn.w-full.bg-blue-600.text-white.py-2.rounded-xl.text-sm.font-bold(class="hover:bg-blue-700 transition" data-subid=sub.submissionID data-studentid=sub.studentID) Return
+
+        //- Desktop: table
+        .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.overflow-hidden.hidden(class="lg:block")
+          table.w-full.text-sm
+            thead
+              tr.bg-gray-50.text-xs.text-gray-400.uppercase.border-b.border-gray-100
+                th.px-5.py-3.text-left Student
+                th.px-5.py-3.text-left Status
+                th.px-5.py-3.text-left File
+                th.px-5.py-3.text-left Grade / #{assignment.points}
+                th.px-5.py-3.text-left Feedback
+                th.px-5.py-3
+            tbody
+              each sub in studentSubmissions
+                tr.border-t.border-gray-50(class="hover:bg-gray-50")
+                  td.px-5.py-4
+                    .flex.items-center.gap-3
+                      .w-8.h-8.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-xs.shrink-0(style=`background-color:${cls.cover_color}`)= sub.studentName.charAt(0)
+                      div
+                        p.font-semibold.text-gray-800.text-sm= sub.studentName
+                        p.text-xs.text-gray-400= sub.studentID
+                  td.px-5.py-4
+                    if sub.status === 'Turned In'
+                      span.text-xs.font-bold.text-blue-600.bg-blue-50.px-2.py-1.rounded-full Turned in
+                    else if sub.status === 'Returned'
+                      span.text-xs.font-bold.text-green-600.bg-green-50.px-2.py-1.rounded-full Returned
+                    else
+                      span.text-xs.font-bold.text-gray-400.bg-gray-100.px-2.py-1.rounded-full Not submitted
+                  td.px-5.py-4
+                    if sub.filePath
+                      a.text-blue-600.text-xs.font-medium(class="hover:underline" href=sub.filePath target="_blank") 📎 View
+                    else
+                      span.text-gray-300.text-xs —
+                  td.px-5.py-4
+                    input.grade-input.w-20.border.border-gray-200.rounded-xl.px-3.py-2.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="text" value=sub.grade||"" placeholder="0–100" maxlength="5")
+                  td.px-5.py-4
+                    input.feedback-input.w-full.border.border-gray-200.rounded-xl.px-3.py-2.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="text" value=sub.feedback||"" placeholder="Feedback...")
+                  td.px-5.py-4
+                    button.save-btn.bg-blue-600.text-white.px-4.py-2.rounded-xl.text-xs.font-bold.whitespace-nowrap(class="hover:bg-blue-700 transition" data-subid=sub.submissionID data-studentid=sub.studentID) Return
+
+  script.
+    var assignmentId = '!{assignment.assignment_id}';
+
+    document.querySelectorAll('.save-btn').forEach(function(btn) {
+      btn.onclick = async function() {
+        var row      = btn.closest('tr') || btn.closest('.bg-white.rounded-2xl');
+        var grade    = row.querySelector('.grade-input').value.trim();
+        var feedback = row.querySelector('.feedback-input').value.trim();
+        if (!grade) { alert('Please enter a grade.'); return; }
+        btn.textContent = 'Saving...'; btn.disabled = true;
+        var res = await fetch('/api/grade', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submissionID: btn.dataset.subid || null, studentId: btn.dataset.studentid, assignmentId: assignmentId, grade: grade, feedback: feedback })
+        });
+        if (res.ok) {
+          btn.textContent = '✓ Returned';
+          btn.classList.replace('bg-blue-600', 'bg-green-600');
+          setTimeout(function() { btn.textContent = 'Return'; btn.classList.replace('bg-green-600', 'bg-blue-600'); btn.disabled = false; }, 2500);
+        } else { alert('Save failed.'); btn.textContent = 'Return'; btn.disabled = false; }
+      };
+    });
+
+    document.getElementById('menuBtn').onclick = function(e) {
+      e.stopPropagation(); document.getElementById('dropMenu').classList.toggle('hidden');
+    };
+    document.addEventListener('click', function() { document.getElementById('dropMenu').classList.add('hidden'); });
+    document.getElementById('logoutBtn').onclick = async function() {
+      await fetch('/api/logout', { method: 'POST' }); localStorage.clear(); location.href = '/login';
+    };

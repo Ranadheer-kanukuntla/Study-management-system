@@ -1,0 +1,13 @@
+nav.bg-white.border-b.border-gray-100.fixed.w-full.z-30.top-0.shadow-sm
+  .max-w-7xl.mx-auto.px-6.h-16.flex.justify-between.items-center
+    a.text-xl.font-bold.text-blue-600(href="/") StudyLink
+    .flex.items-center.gap-4
+      span.text-sm.text-gray-600= user ? user.name : "Guest"
+      button#logoutBtn.text-xs.text-red-500.bg-red-50.border.border-red-200.px-3.py-1.rounded-full(class="hover:bg-red-100 transition") Logout
+      
+  script.
+    document.getElementById('logoutBtn').onclick = async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      localStorage.clear();
+      location.href = '/login';
+    };

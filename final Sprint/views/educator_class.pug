@@ -1,0 +1,274 @@
+doctype html
+html(lang="en")
+  head
+    title #{cls.name} | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+  body.bg-gray-100.min-h-screen
+
+    nav.bg-white.border-b.border-gray-200.fixed.w-full.z-30.top-0
+      .max-w-6xl.mx-auto.px-4.h-14.flex.justify-between.items-center(class="sm:h-16 sm:px-6")
+        .flex.items-center.gap-3
+          a.flex.items-center.justify-center.w-8.h-8.text-gray-400.rounded-lg(class="hover:bg-gray-100" href="/educator/dashboard") ←
+          span.text-base.font-bold.text-gray-900.hidden(class="sm:block") StudyLink
+        .flex.items-center.gap-2(class="sm:gap-3")
+          if tab === 'stream'
+            button#annBtn.text-sm.font-medium.text-blue-600.border.border-blue-200.px-3.py-1.rounded-xl(class="hover:bg-blue-50 sm:px-4 sm:py-2") 📢 Announce
+          if tab === 'classwork' || !tab || tab === 'stream'
+            button#newAsgBtn.bg-blue-600.text-white.text-sm.font-bold.px-3.py-1.rounded-xl(class="hover:bg-blue-700 sm:px-4 sm:py-2") + Assignment
+          button#menuBtn.w-8.h-8.bg-blue-600.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm.cursor-pointer= user.name.charAt(0)
+          #dropMenu.hidden.absolute.right-4.top-14.bg-white.border.border-gray-200.rounded-xl.shadow-lg.p-2.w-48.z-50(class="sm:right-6 sm:top-16")
+            button#logoutBtn.w-full.text-left.px-3.py-2.text-sm.text-red-600.rounded-lg(class="hover:bg-red-50") Sign out
+
+    .pt-14(class="sm:pt-16")
+      .relative(style=`background-color:${cls.cover_color}`)
+        .max-w-6xl.mx-auto.px-4.py-5(class="sm:px-6 sm:py-8")
+          p.text-xs.text-white.mb-1(style="opacity:0.8")= cls.subject + (cls.section ? ' · ' + cls.section : '')
+          h1.text-xl.font-bold.text-white(class="sm:text-2xl")= cls.name
+          .flex.flex-wrap.items-center.gap-3.mt-2
+            span.text-white.text-xs(style="opacity:0.8") #{students.length} students
+            span.text-white.font-mono.text-xs.bg-black.bg-opacity-20.px-2.py-1.rounded-lg= 'Code: ' + cls.class_code
+
+    .bg-white.border-b.border-gray-200.sticky.top-14.z-20(class="sm:top-16")
+      .max-w-6xl.mx-auto.px-4(class="sm:px-6")
+        .flex.overflow-x-auto
+          a.whitespace-nowrap.px-3.py-3.text-sm.font-semibold.border-b-2.transition(class=(tab==='stream'?'border-blue-600 text-blue-600':'border-transparent text-gray-500 hover:text-gray-700') + ' sm:px-4' href=`/educator/class/${cls.class_id}?tab=stream`) Stream
+          a.whitespace-nowrap.px-3.py-3.text-sm.font-semibold.border-b-2.transition(class=(tab==='classwork'?'border-blue-600 text-blue-600':'border-transparent text-gray-500 hover:text-gray-700') + ' sm:px-4' href=`/educator/class/${cls.class_id}?tab=classwork`) Classwork
+          a.whitespace-nowrap.px-3.py-3.text-sm.font-semibold.border-b-2.transition(class=(tab==='people'?'border-blue-600 text-blue-600':'border-transparent text-gray-500 hover:text-gray-700') + ' sm:px-4' href=`/educator/class/${cls.class_id}?tab=people`) People
+          a.whitespace-nowrap.px-3.py-3.text-sm.font-semibold.border-b-2.transition(class=(tab==='analytics'?'border-blue-600 text-blue-600':'border-transparent text-gray-500 hover:text-gray-700') + ' sm:px-4' href=`/educator/class/${cls.class_id}?tab=analytics`) Analytics
+
+    main.max-w-6xl.mx-auto.px-4.py-6(class="sm:px-6 sm:py-8")
+
+      if tab === 'stream'
+        .max-w-2xl.mx-auto.space-y-4
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4(class="sm:p-5")
+            .flex.flex-col.gap-3(class="sm:flex-row sm:justify-between sm:items-center")
+              div
+                p.text-xs.font-bold.text-gray-400.uppercase.tracking-wider.mb-1 Class code — share this with students
+                p.text-2xl.font-mono.font-bold.text-blue-600= cls.class_code
+              button#copyCode.text-sm.font-medium.text-blue-600.border.border-blue-200.px-4.py-2.rounded-xl.w-fit(class="hover:bg-blue-50") Copy code
+          if announcements.length === 0
+            .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-10.text-center
+              .text-3xl.mb-3 📢
+              p.text-gray-500.text-sm No announcements yet.
+          else
+            each ann in announcements
+              .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4(class="sm:p-5")
+                .flex.items-center.gap-3.mb-3
+                  .w-9.h-9.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm.shrink-0(style=`background-color:${cls.cover_color}`)= user.name.charAt(0)
+                  div
+                    p.font-semibold.text-gray-900.text-sm= user.name
+                    p.text-xs.text-gray-400= new Date(ann.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+                p.text-gray-700.text-sm.leading-relaxed= ann.message
+
+      if tab === 'classwork'
+        .max-w-2xl.mx-auto
+          if assignments.length === 0
+            .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-12.text-center
+              .text-4xl.mb-3 📋
+              p.text-gray-500.text-sm.mb-4 No assignments yet.
+              button#newAsgBtn2.bg-blue-600.text-white.px-5.py-2.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700") + Create assignment
+          else
+            .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.overflow-hidden
+              each asg, i in assignments
+                .flex.items-center.justify-between.px-4.py-4(class=i>0?'border-t border-gray-100':'')
+                  .flex.items-center.gap-3.min-w-0.cursor-pointer.flex-1(onclick=`location.href='/educator/class/${cls.class_id}/assignment/${asg.assignment_id}'`)
+                    .w-9.h-9.rounded-full.flex.items-center.justify-center.text-white.text-sm.shrink-0(style=`background-color:${cls.cover_color}`) 📋
+                    div.min-w-0
+                      p.font-semibold.text-gray-900.text-sm.truncate= asg.title
+                      p.text-xs.text-gray-400.mt-1 Due #{new Date(asg.due_date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})} · #{asg.points} pts
+                  .flex.items-center.gap-2.shrink-0.ml-3
+                    span.text-xs.text-gray-500.hidden(class="sm:block") #{asg.submittedCount}/#{asg.totalStudents}
+                    a.text-xs.text-blue-600.font-medium(class="hover:underline hidden sm:block" href=`/educator/class/${cls.class_id}/assignment/${asg.assignment_id}`) Grade
+                    button.delete-asg-btn.text-xs.text-red-400.w-7.h-7.rounded-lg.flex.items-center.justify-center(class="hover:bg-red-50" data-id=asg.assignment_id) ✕
+
+      if tab === 'people'
+        .max-w-2xl.mx-auto.space-y-4
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.overflow-hidden
+            .px-4.py-3.border-b.border-gray-100(class="sm:px-6 sm:py-4")
+              h2.font-bold.text-gray-900.text-sm(class="sm:text-base") Educator
+            .px-4.py-3.flex.items-center.gap-3(class="sm:px-6 sm:py-4")
+              .w-9.h-9.bg-blue-600.rounded-full.flex.items-center.justify-center.text-white.font-bold= user.name.charAt(0)
+              div
+                p.font-semibold.text-gray-900.text-sm= user.name
+                p.text-xs.text-gray-500= user.department
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.overflow-hidden
+            .px-4.py-3.border-b.border-gray-100.flex.justify-between.items-center(class="sm:px-6 sm:py-4")
+              h2.font-bold.text-gray-900.text-sm(class="sm:text-base") Students
+              span.text-xs.text-gray-400= students.length + ' enrolled'
+            if students.length === 0
+              .px-4.py-8.text-center.text-sm.text-gray-400(class="sm:px-6") No students enrolled yet. Share the class code!
+            else
+              each student in students
+                .px-4.py-3.flex.items-center.justify-between.border-t.border-gray-50(class="sm:px-6")
+                  .flex.items-center.gap-3
+                    .w-8.h-8.bg-gray-100.rounded-full.flex.items-center.justify-center.text-gray-600.font-bold.text-sm= student.name.charAt(0)
+                    div
+                      p.text-sm.font-medium.text-gray-800= student.name
+                      p.text-xs.text-gray-400= student.major
+                  button.remove-student-btn.text-xs.text-red-400.border.border-red-100.px-3.py-1.rounded-xl(class="hover:bg-red-50" data-id=student.student_id data-name=student.name) Remove
+
+      if tab === 'analytics'
+        .max-w-2xl.mx-auto.space-y-5
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4(class="sm:p-6")
+            h2.font-bold.text-gray-900.mb-4.text-sm(class="sm:text-base") Grade distribution
+            .relative(style="height:260px")
+              canvas#gradeChart
+          .bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-4(class="sm:p-6")
+            h2.font-bold.text-gray-900.mb-1.text-sm(class="sm:text-base") Class average
+            p#avgScore.text-4xl.font-black.text-blue-600 —
+            p.text-xs.text-gray-400.mt-1 Based on returned grades
+
+    #annModal.hidden.fixed.inset-0.bg-black.bg-opacity-60.z-50.flex.items-end.justify-center.p-4(class="sm:items-center")
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-md.p-6(class="sm:p-8")
+        .flex.justify-between.items-center.mb-4
+          h2.text-lg.font-bold Post to class
+          button#closeAnn.text-gray-400.text-2xl.leading-none(class="hover:text-gray-600") ×
+        form#annForm
+          textarea#annText.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none.resize-none(class="focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Share something with your class..." required)
+          .flex.gap-3.mt-4
+            button#cancelAnn.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200" type="button") Cancel
+            button#postBtn.flex-1.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700" type="submit") Post
+
+    #asgModal.hidden.fixed.inset-0.bg-black.bg-opacity-60.z-50.flex.items-end.justify-center.p-4(class="sm:items-center")
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-md.p-6(class="sm:p-8")
+        .flex.justify-between.items-center.mb-5
+          h2.text-lg.font-bold New assignment
+          button#closeAsg.text-gray-400.text-2xl.leading-none(class="hover:text-gray-600") ×
+        form#asgForm
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1 Title *
+            input#asgTitle.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" required placeholder="e.g. Week 3 Quiz")
+          .grid.grid-cols-2.gap-3.mb-4
+            div
+              label.block.text-sm.font-semibold.text-gray-700.mb-1 Due date *
+              input#asgDue.w-full.border.border-gray-200.rounded-xl.px-3.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="date" required)
+            div
+              label.block.text-sm.font-semibold.text-gray-700.mb-1 Points
+              input#asgPoints.w-full.border.border-gray-200.rounded-xl.px-3.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500" type="number" value="100" min="0")
+          .mb-5
+            label.block.text-sm.font-semibold.text-gray-700.mb-1 Instructions
+            textarea#asgDesc.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none.resize-none(class="focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Describe the assignment...")
+          .flex.gap-3
+            button#cancelAsg.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200" type="button") Cancel
+            button#createAsgBtn.flex-1.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700" type="submit") Assign
+
+    #deleteAsgModal.hidden.fixed.inset-0.bg-black.bg-opacity-60.z-50.flex.items-center.justify-center.p-4
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-sm.p-6.text-center(class="sm:p-8")
+        .text-4xl.mb-4 🗑️
+        h2.text-xl.font-bold.mb-2 Delete assignment?
+        p.text-sm.text-gray-500.mb-6 All submissions will also be deleted.
+        .flex.gap-3
+          button#cancelDeleteAsg.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200") Cancel
+          button#confirmDeleteAsg.flex-1.bg-red-500.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-red-600") Delete
+
+    #removeModal.hidden.fixed.inset-0.bg-black.bg-opacity-60.z-50.flex.items-center.justify-center.p-4
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-sm.p-6.text-center(class="sm:p-8")
+        .text-4xl.mb-4 👤
+        h2.text-xl.font-bold.mb-2 Remove student?
+        p#removeNameText.text-sm.text-gray-500.mb-6
+        .flex.gap-3
+          button#cancelRemove.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200") Cancel
+          button#confirmRemove.flex-1.bg-red-500.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-red-600") Remove
+
+  script.
+    var classId       = '!{cls.class_id}';
+    var annModal      = document.getElementById('annModal');
+    var asgModal      = document.getElementById('asgModal');
+    var deleteAsgMod  = document.getElementById('deleteAsgModal');
+    var removeMod     = document.getElementById('removeModal');
+
+    function openAsg() { asgModal.classList.remove('hidden'); }
+    function closeAsg() { asgModal.classList.add('hidden'); }
+
+    var annBtn    = document.getElementById('annBtn');
+    var newAsgBtn = document.getElementById('newAsgBtn');
+    var newAsgBtn2 = document.getElementById('newAsgBtn2');
+    if (annBtn)    annBtn.onclick    = function() { annModal.classList.remove('hidden'); };
+    if (newAsgBtn) newAsgBtn.onclick = openAsg;
+    if (newAsgBtn2) newAsgBtn2.onclick = openAsg;
+
+    document.getElementById('closeAnn').onclick  = function() { annModal.classList.add('hidden'); };
+    document.getElementById('cancelAnn').onclick = function() { annModal.classList.add('hidden'); };
+    document.getElementById('closeAsg').onclick  = closeAsg;
+    document.getElementById('cancelAsg').onclick = closeAsg;
+    document.getElementById('cancelDeleteAsg').onclick = function() { deleteAsgMod.classList.add('hidden'); };
+    document.getElementById('cancelRemove').onclick    = function() { removeMod.classList.add('hidden'); };
+
+    var copyBtn = document.getElementById('copyCode');
+    if (copyBtn) {
+      copyBtn.onclick = function() {
+        navigator.clipboard.writeText('!{cls.class_code}');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(function() { copyBtn.textContent = 'Copy code'; }, 2000);
+      };
+    }
+
+    document.getElementById('annForm').onsubmit = async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('postBtn');
+      btn.textContent = 'Posting...'; btn.disabled = true;
+      var res = await fetch('/api/class/' + classId + '/announce', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: annText.value }) });
+      if (res.ok) { annModal.classList.add('hidden'); annForm.reset(); location.reload(); }
+      else { alert('Failed to post.'); btn.textContent = 'Post'; btn.disabled = false; }
+    };
+
+    document.getElementById('asgForm').onsubmit = async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('createAsgBtn');
+      btn.textContent = 'Assigning...'; btn.disabled = true;
+      var res = await fetch('/api/class/' + classId + '/assignment', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: asgTitle.value, description: asgDesc.value, dueDate: asgDue.value, points: asgPoints.value })
+      });
+      if (res.ok) { closeAsg(); location.reload(); }
+      else { alert('Failed to create.'); btn.textContent = 'Assign'; btn.disabled = false; }
+    };
+
+    var pendingAsgId = null;
+    document.querySelectorAll('.delete-asg-btn').forEach(function(btn) {
+      btn.onclick = function() { pendingAsgId = btn.dataset.id; deleteAsgMod.classList.remove('hidden'); };
+    });
+    document.getElementById('confirmDeleteAsg').onclick = async function() {
+      if (!pendingAsgId) return;
+      var res = await fetch('/api/assignment/' + pendingAsgId, { method: 'DELETE' });
+      if (res.ok) { deleteAsgMod.classList.add('hidden'); location.reload(); }
+    };
+
+    var pendingStudentId = null;
+    document.querySelectorAll('.remove-student-btn').forEach(function(btn) {
+      btn.onclick = function() {
+        pendingStudentId = btn.dataset.id;
+        document.getElementById('removeNameText').textContent = 'Remove ' + btn.dataset.name + ' from this class?';
+        removeMod.classList.remove('hidden');
+      };
+    });
+    document.getElementById('confirmRemove').onclick = async function() {
+      if (!pendingStudentId) return;
+      var res = await fetch('/api/class/' + classId + '/student/' + pendingStudentId, { method: 'DELETE' });
+      if (res.ok) { removeMod.classList.add('hidden'); location.reload(); }
+    };
+
+    document.getElementById('menuBtn').onclick = function(e) {
+      e.stopPropagation(); document.getElementById('dropMenu').classList.toggle('hidden');
+    };
+    document.addEventListener('click', function() { document.getElementById('dropMenu').classList.add('hidden'); });
+    document.getElementById('logoutBtn').onclick = async function() {
+      await fetch('/api/logout', { method: 'POST' }); localStorage.clear(); location.href = '/login';
+    };
+
+    if ('!{tab}' === 'analytics') {
+      fetch('/api/class/' + classId + '/analytics').then(function(r) { return r.json(); }).then(function(d) {
+        document.getElementById('avgScore').textContent = d.avg ? d.avg + '%' : '—';
+        if (d.labels && d.labels.length) {
+          new Chart(document.getElementById('gradeChart'), {
+            type: 'bar',
+            data: { labels: d.labels, datasets: [{ label: 'Students', data: d.data, backgroundColor: '#2563eb', borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+          });
+        } else {
+          document.getElementById('gradeChart').closest('.relative').innerHTML = '<p style="text-align:center;color:#9ca3af;padding:4rem 0;font-size:14px">No graded submissions yet.</p>';
+        }
+      });
+    }

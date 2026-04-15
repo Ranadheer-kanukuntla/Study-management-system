@@ -1,0 +1,81 @@
+doctype html
+html(lang="en")
+  head
+    title Sign In | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body.min-h-screen.bg-gray-50.flex.items-center.justify-center.px-4.py-8
+    .w-full.max-w-md
+      .text-center.mb-8
+        .w-12.h-12.bg-blue-600.rounded-2xl.flex.items-center.justify-center.text-white.font-bold.text-lg.mx-auto.mb-4 SL
+        h1.text-2xl.font-bold.text-gray-900 Sign in to StudyLink
+        p.text-sm.text-gray-500.mt-1 Welcome back
+      .bg-white.rounded-2xl.shadow-sm.border.border-gray-200.p-6(class="sm:p-8")
+        #successBanner.hidden.text-sm.text-green-700.bg-green-50.border.border-green-200.rounded-xl.p-3.mb-5
+          | ✓ Account created — you can now sign in.
+        #loginError.hidden.text-sm.text-red-600.bg-red-50.border.border-red-200.rounded-xl.p-3.mb-5
+        .flex.p-1.bg-gray-100.rounded-xl.mb-5
+          button#btnStudent.role-btn.flex-1.py-2.bg-white.text-blue-600.rounded-lg.shadow-sm.text-sm.font-semibold(type="button") Student
+          button#btnEducator.role-btn.flex-1.py-2.text-gray-400.rounded-lg.text-sm.font-semibold(type="button") Educator
+        form#loginForm
+          .mb-4
+            label.block.text-sm.font-semibold.text-gray-700.mb-1(for="loginEmail") Email address
+            input#loginEmail.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500 focus:border-transparent" type="email" placeholder="you@university.com" required)
+          .mb-6
+            label.block.text-sm.font-semibold.text-gray-700.mb-1(for="loginPassword") Password
+            input#loginPassword.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.outline-none(class="focus:ring-2 focus:ring-blue-500 focus:border-transparent" type="password" placeholder="••••••••" required)
+          button#loginBtn.w-full.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700 transition" type="submit") Sign In
+        p.text-center.text-sm.text-gray-500.mt-6
+          | Don't have an account?&nbsp;
+          a.text-blue-600.font-semibold(class="hover:underline" href="/signup") Sign up
+      p.text-center.text-sm.text-gray-400.mt-4
+        a(class="hover:text-gray-600" href="/") ← Back to home
+  script.
+    var role = 'student';
+    if (new URLSearchParams(location.search).get('registered'))
+      document.getElementById('successBanner').classList.remove('hidden');
+
+    document.querySelectorAll('.role-btn').forEach(function(btn) {
+      btn.onclick = function(e) {
+        document.querySelectorAll('.role-btn').forEach(function(b) {
+          b.className = 'role-btn flex-1 py-2 text-gray-400 rounded-lg text-sm font-semibold';
+        });
+        e.target.className = 'role-btn flex-1 py-2 bg-white text-blue-600 rounded-lg shadow-sm text-sm font-semibold';
+        role = e.target.id === 'btnStudent' ? 'student' : 'educator';
+      };
+    });
+
+    document.getElementById('loginForm').onsubmit = async function(e) {
+      e.preventDefault();
+      var btn   = document.getElementById('loginBtn');
+      var errEl = document.getElementById('loginError');
+      var emailVal = document.getElementById('loginEmail').value.trim();
+      var passVal  = document.getElementById('loginPassword').value;
+
+      errEl.classList.add('hidden');
+      btn.textContent = 'Signing in...';
+      btn.disabled = true;
+
+      try {
+        var res  = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailVal, password: passVal, role: role })
+        });
+        var data = await res.json();
+        if (data.success) {
+          localStorage.setItem('sms_token', data.token);
+          location.href = '/' + data.role + '/dashboard';
+        } else {
+          errEl.textContent = data.message;
+          errEl.classList.remove('hidden');
+          btn.textContent = 'Sign In';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.classList.remove('hidden');
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+      }
+    };

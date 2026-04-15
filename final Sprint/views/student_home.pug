@@ -1,0 +1,116 @@
+doctype html
+html(lang="en")
+  head
+    title My Classes | StudyLink
+    link(rel="stylesheet" href="/css/style.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    style.
+      .class-card { transition: box-shadow .15s, transform .15s; }
+      .class-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); transform: translateY(-2px); }
+  body.bg-gray-100.min-h-screen
+
+    nav.bg-white.border-b.border-gray-200.fixed.w-full.z-30.top-0
+      .max-w-6xl.mx-auto.px-4.h-14.flex.justify-between.items-center(class="sm:h-16 sm:px-6")
+        .flex.items-center.gap-2
+          .w-8.h-8.bg-blue-600.rounded-lg.flex.items-center.justify-center.text-white.font-bold.text-xs SL
+          span.text-base.font-bold.text-gray-900 StudyLink
+        .flex.items-center.gap-2(class="sm:gap-3")
+          button#joinTopBtn.text-sm.font-medium.text-blue-600.border.border-blue-200.px-3.py-1.rounded-xl(class="hover:bg-blue-50 sm:px-4 sm:py-2") + Join
+          button#menuBtn.relative.flex.items-center.gap-2.cursor-pointer(type="button")
+            .w-8.h-8.bg-blue-600.rounded-full.flex.items-center.justify-center.text-white.font-bold.text-sm= user.name.charAt(0)
+          #dropMenu.hidden.absolute.right-4.top-14.bg-white.border.border-gray-200.rounded-xl.shadow-lg.p-2.w-52.z-50(class="sm:right-6 sm:top-16")
+            p.px-3.py-2.text-sm.font-semibold.text-gray-900.border-b.border-gray-100= user.name
+            p.px-3.py-1.text-xs.text-gray-500= user.major
+            button#logoutBtn.w-full.text-left.px-3.py-2.text-sm.text-red-600.rounded-lg.mt-1(class="hover:bg-red-50") Sign out
+
+    main.max-w-6xl.mx-auto.pt-14.px-4.pb-12(class="sm:pt-20 sm:px-6")
+      .flex.flex-col.gap-2.py-5(class="sm:flex-row sm:items-center sm:justify-between sm:py-6")
+        div
+          h1.text-xl.font-bold.text-gray-900(class="sm:text-2xl") My Classes
+          p.text-sm.text-gray-500.mt-1= user.name + ' · ' + user.major
+        button#joinMainBtn.bg-blue-600.text-white.text-sm.font-bold.px-4.py-2.rounded-xl.flex.items-center.gap-2.w-fit(class="hover:bg-blue-700 sm:px-5") + Join class
+
+      if classes.length === 0
+        .text-center.py-16
+          .text-5xl.mb-4 🏫
+          h2.text-lg.font-bold.text-gray-700.mb-2(class="sm:text-xl") No classes yet
+          p.text-gray-400.text-sm.mb-6 Ask your educator for a class code and join your first class.
+          button#joinEmptyBtn.bg-blue-600.text-white.px-6.py-2.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700") Join a class
+      else
+        .grid.grid-cols-1.gap-4(class="sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6")
+          each cls in classes
+            .class-card.bg-white.rounded-2xl.overflow-hidden.border.border-gray-100.cursor-pointer(onclick=`location.href='/student/class/${cls.class_id}'`)
+              .h-24.relative(style=`background-color:${cls.cover_color}`)
+                .absolute.inset-0.flex.flex-col.justify-end.p-4
+                  p.text-white.text-base.font-bold.leading-snug= cls.name
+                  p.text-white.text-xs.mt-1(style="opacity:0.8")= cls.subject
+              .p-4
+                p.text-xs.text-gray-500.mb-3= cls.educatorName
+                .flex.items-center.justify-between
+                  .text-center
+                    p.text-base.font-bold.text-gray-900= cls.doneAssignments + '/' + cls.totalAssignments
+                    p.text-xs.text-gray-400 done
+                  span.text-xs.font-mono.text-gray-400.bg-gray-100.px-2.py-1.rounded-lg= cls.class_code
+
+    #joinModal.hidden.fixed.inset-0.bg-black.bg-opacity-60.z-50.flex.items-end.justify-center.p-4(class="sm:items-center")
+      .bg-white.rounded-2xl.shadow-2xl.w-full.max-w-sm.p-6(class="sm:p-8")
+        .flex.justify-between.items-center.mb-5
+          h2.text-lg.font-bold(class="sm:text-xl") Join a class
+          button#closeJoin.text-gray-400.text-2xl.leading-none(class="hover:text-gray-600") ×
+        p.text-sm.text-gray-500.mb-4 Enter the class code from your educator.
+        #joinError.hidden.text-sm.text-red-600.bg-red-50.border.border-red-200.rounded-xl.p-3.mb-4
+        .mb-5
+          label.block.text-sm.font-semibold.text-gray-700.mb-2 Class code
+          input#classCodeInput.w-full.border.border-gray-200.rounded-xl.px-4.py-3.text-sm.font-mono.outline-none.uppercase(class="focus:ring-2 focus:ring-blue-500" placeholder="e.g. A3F9C1" maxlength="8")
+        .flex.gap-3
+          button#cancelJoin.flex-1.bg-gray-100.py-3.rounded-xl.text-sm.font-medium(class="hover:bg-gray-200") Cancel
+          button#confirmJoin.flex-1.bg-blue-600.text-white.py-3.rounded-xl.font-bold.text-sm(class="hover:bg-blue-700") Join
+
+  script.
+    var modal = document.getElementById('joinModal');
+    var drop  = document.getElementById('dropMenu');
+
+    function openJoin() {
+      modal.classList.remove('hidden');
+      document.getElementById('classCodeInput').value = '';
+      document.getElementById('joinError').classList.add('hidden');
+      setTimeout(function() { document.getElementById('classCodeInput').focus(); }, 100);
+    }
+    function closeJoin() { modal.classList.add('hidden'); }
+
+    document.getElementById('joinTopBtn').onclick  = openJoin;
+    document.getElementById('joinMainBtn').onclick = openJoin;
+    var je = document.getElementById('joinEmptyBtn');
+    if (je) je.onclick = openJoin;
+    document.getElementById('closeJoin').onclick  = closeJoin;
+    document.getElementById('cancelJoin').onclick = closeJoin;
+    modal.onclick = function(e) { if (e.target === modal) closeJoin(); };
+
+    document.getElementById('classCodeInput').onkeydown = function(e) {
+      if (e.key === 'Enter') document.getElementById('confirmJoin').click();
+    };
+
+    document.getElementById('confirmJoin').onclick = async function() {
+      var btn   = document.getElementById('confirmJoin');
+      var errEl = document.getElementById('joinError');
+      var code  = document.getElementById('classCodeInput').value.trim();
+      errEl.classList.add('hidden');
+      if (!code) { errEl.textContent = 'Please enter a class code.'; errEl.classList.remove('hidden'); return; }
+      btn.textContent = 'Joining...'; btn.disabled = true;
+      var res  = await fetch('/api/join-class', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ classCode: code }) });
+      var data = await res.json();
+      if (data.success) { closeJoin(); location.reload(); }
+      else { errEl.textContent = data.message; errEl.classList.remove('hidden'); btn.textContent = 'Join'; btn.disabled = false; }
+    };
+
+    document.getElementById('menuBtn').onclick = function(e) {
+      e.stopPropagation();
+      drop.classList.toggle('hidden');
+    };
+    document.addEventListener('click', function() { drop.classList.add('hidden'); });
+
+    document.getElementById('logoutBtn').onclick = async function() {
+      await fetch('/api/logout', { method: 'POST' });
+      localStorage.clear();
+      location.href = '/login';
+    };
